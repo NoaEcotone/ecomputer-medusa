@@ -81,10 +81,10 @@ export default function CartDrawer() {
                 >
                   {/* Product Image */}
                   <div className="w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
-                    {item.thumbnail ? (
+                    {item.thumbnail || item.variant?.product?.thumbnail ? (
                       <img
-                        src={item.thumbnail}
-                        alt={item.product_title}
+                        src={item.thumbnail || item.variant?.product?.thumbnail}
+                        alt={item.product_title || item.title}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -97,9 +97,9 @@ export default function CartDrawer() {
                   {/* Product Info */}
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-sm mb-1 truncate">
-                      {item.product_title}
+                      {item.product_title || item.variant?.product?.title || item.title}
                     </h3>
-                    {item.variant_title && item.variant_title !== 'Default Variant' && (
+                    {item.variant_title && item.variant_title !== 'Default' && item.variant_title !== 'Default Variant' && (
                       <p className="text-xs text-gray-600 mb-2">{item.variant_title}</p>
                     )}
                     
@@ -126,9 +126,9 @@ export default function CartDrawer() {
                       {/* Price */}
                       <div className="text-right">
                         <p className="font-bold text-sm">
-                          {formatPrice(item.subtotal, cart.currency_code)}
+                          {formatPrice(item.subtotal || (item.unit_price * item.quantity), cart.currency_code)}
                         </p>
-                        {item.quantity > 1 && (
+                        {item.quantity > 1 && item.unit_price && (
                           <p className="text-xs text-gray-600">
                             {formatPrice(item.unit_price, cart.currency_code)} per stuk
                           </p>

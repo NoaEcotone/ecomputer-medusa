@@ -220,10 +220,16 @@ export async function removeFromCart(lineItemId: string): Promise<Cart> {
 
     const data = await response.json();
     console.log('🗑️ Remove response:', data);
-    console.log('🗑️ Cart after removal:', data.cart);
-    console.log('🗑️ Items after removal:', data.cart?.items);
-    console.log('🗑️ Items length:', data.cart?.items?.length);
-    return data.cart;
+    
+    // Medusa 2.x DELETE endpoint doesn't return the full cart
+    // We need to fetch the updated cart separately
+    console.log('🗑️ Fetching updated cart after deletion...');
+    const updatedCart = await getCart();
+    console.log('🗑️ Updated cart:', updatedCart);
+    console.log('🗑️ Items after removal:', updatedCart?.items);
+    console.log('🗑️ Items length:', updatedCart?.items?.length);
+    
+    return updatedCart!;
   } catch (error) {
     console.error('Error removing from cart:', error);
     throw error;

@@ -264,7 +264,7 @@ function FilterSection({
         <h3 className="font-medium text-sm uppercase tracking-wide">{title}</h3>
         {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </button>
-      {isOpen && <div className="px-4 pb-4 space-y-2">{children}</div>}
+      {isOpen && <div className="px-4 pb-4 space-y-2 max-h-64 overflow-y-auto">{children}</div>}
     </div>
   );
 }

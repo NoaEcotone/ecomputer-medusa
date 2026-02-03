@@ -90,6 +90,9 @@ export default function ProductDetail() {
   const attrs = product.attributes;
   const variant = product.variants?.[0];
   const price = variant?.prices?.[0];
+  
+  // Use thumbnail if available, otherwise use first image from images array
+  const imageUrl = product.thumbnail || product.images?.[0]?.url;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -112,9 +115,9 @@ export default function ProductDetail() {
             {/* Product Image */}
             <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
               <div className="aspect-[4/3] bg-gray-100 flex items-center justify-center">
-                {product.thumbnail ? (
+                {imageUrl ? (
                   <img
-                    src={product.thumbnail}
+                    src={imageUrl}
                     alt={product.title}
                     className="w-full h-full object-cover"
                   />

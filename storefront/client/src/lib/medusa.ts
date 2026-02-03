@@ -4,12 +4,20 @@ const MEDUSA_BACKEND_URL = import.meta.env.VITE_MEDUSA_BACKEND_URL || 'http://lo
 const MEDUSA_PUBLISHABLE_KEY = import.meta.env.VITE_MEDUSA_PUBLISHABLE_KEY || '';
 
 
+export interface ProductImage {
+  id: string;
+  url: string;
+  metadata: Record<string, any> | null;
+  rank: number;
+}
+
 export interface Product {
   id: string;
   title: string;
   description: string | null;
   handle: string;
   thumbnail: string | null;
+  images?: ProductImage[];
   variants: ProductVariant[];
   metadata: Record<string, any> | null;
 }

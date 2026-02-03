@@ -30,6 +30,9 @@ function ProductCard({ product }: { product: ProductWithAttributes }) {
   const attrs = product.attributes;
   const variant = product.variants?.[0];
   const price = variant?.prices?.[0];
+  
+  // Use thumbnail if available, otherwise use first image from images array
+  const imageUrl = product.thumbnail || product.images?.[0]?.url;
 
   return (
     <Link
@@ -38,9 +41,9 @@ function ProductCard({ product }: { product: ProductWithAttributes }) {
     >
       {/* Image */}
       <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
-        {product.thumbnail ? (
+        {imageUrl ? (
           <img
-            src={product.thumbnail}
+            src={imageUrl}
             alt={product.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />

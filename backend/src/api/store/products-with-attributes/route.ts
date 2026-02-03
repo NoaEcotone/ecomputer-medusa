@@ -17,7 +17,7 @@ export async function GET(
     // Get the query service to fetch data
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-    // Fetch products with their variants, prices, and metadata
+    // Fetch products with their variants, prices, images, and metadata
     const { data: products } = await query.graph({
       entity: "product",
       fields: [
@@ -28,6 +28,7 @@ export async function GET(
         "thumbnail",
         "metadata",
         "status",
+        "images.*",
         "variants.*",
         "variants.prices.*",
       ],

@@ -202,6 +202,7 @@ export async function removeFromCart(lineItemId: string): Promise<Cart> {
   }
 
   try {
+    console.log('🗑️ Removing line item:', lineItemId, 'from cart:', cartId);
     const response = await fetch(
       `${MEDUSA_BACKEND_URL}/store/carts/${cartId}/line-items/${lineItemId}`,
       {
@@ -218,6 +219,10 @@ export async function removeFromCart(lineItemId: string): Promise<Cart> {
     }
 
     const data = await response.json();
+    console.log('🗑️ Remove response:', data);
+    console.log('🗑️ Cart after removal:', data.cart);
+    console.log('🗑️ Items after removal:', data.cart?.items);
+    console.log('🗑️ Items length:', data.cart?.items?.length);
     return data.cart;
   } catch (error) {
     console.error('Error removing from cart:', error);

@@ -91,8 +91,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeFromCart = async (lineItemId: string) => {
     try {
+      console.log('🛒 CartContext: Removing item:', lineItemId);
+      console.log('🛒 CartContext: Cart before removal:', cart);
       const updatedCart = await removeFromCartAPI(lineItemId);
+      console.log('🛒 CartContext: Updated cart from API:', updatedCart);
+      console.log('🛒 CartContext: Updated cart items:', updatedCart?.items);
       setCart(updatedCart);
+      console.log('🛒 CartContext: State updated with cart');
       toast.success('Product verwijderd uit winkelwagen');
     } catch (error) {
       console.error('Error removing from cart:', error);

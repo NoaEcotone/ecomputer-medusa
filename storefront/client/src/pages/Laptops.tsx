@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductFilters, { FilterState } from '@/components/ProductFilters';
@@ -8,12 +8,17 @@ import {
   getFilterOptions,
   ProductWithAttributes,
 } from '@/lib/medusa';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowUpDown } from 'lucide-react';
+
+type SortOption = 'popular' | 'price-asc' | 'price-desc' | 'newest';
 
 export default function Laptops() {
   const [allProducts, setAllProducts] = useState<ProductWithAttributes[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<ProductWithAttributes[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<SortOption>('popular');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [maxPrice, setMaxPrice] = useState(5000);
   const [filters, setFilters] = useState<FilterState>({
     processorTypes: [],
     ramSizes: [],
@@ -29,20 +34,49 @@ export default function Laptops() {
     async function fetchProducts() {
       setLoading(true);
       const products = await getProductsWithAttributes();
-      setAllProducts(products);
-      setFilteredProducts(products);
+      
+      // Filter to only show laptops (exclude monitors, desktops, etc.)
+      const laptopsOnly = products.filter(product => {
+        const title = product.title.toLowerCase();
+        // Exclude monitors and desktops
+        if (title.includes('monitor') || title.includes('desktop') || title.includes('all-in-one')) {
+          return false;
+        }
+        // Include laptops, notebooks, chromebooks, etc.
+        return true;
+      });
+      
+      // Calculate max price from all products
+      const prices = laptopsOnly
+        .map(p => p.variants?.[0]?.prices?.[0]?.amount || 0)
+        .filter(p => p > 0);
+      const calculatedMaxPrice = prices.length > 0 ? Math.ceil(Math.max(...prices) / 100) : 5000;
+      setMaxPrice(calculatedMaxPrice);
+      setPriceRange([0, calculatedMaxPrice]);
+      
+      setAllProducts(laptopsOnly);
+      setFilteredProducts(laptopsOnly);
       setLoading(false);
     }
     fetchProducts();
   }, []);
 
-  // Apply filters whenever filters change
+  // Apply filters and sorting whenever they change
   useEffect(() => {
     if (allProducts.length === 0) return;
 
-    const filtered = allProducts.filter((product) => {
+    let filtered = allProducts.filter((product) => {
       const attrs = product.attributes;
       if (!attrs) return false;
+
+      // Price Range Filter
+      const price = product.variants?.[0]?.prices?.[0]?.amount;
+      if (price) {
+        const priceInEuros = price / 100;
+        if (priceInEuros < priceRange[0] || priceInEuros > priceRange[1]) {
+          return false;
+        }
+      }
 
       // Processor Type
       if (
@@ -103,8 +137,28 @@ export default function Laptops() {
       return true;
     });
 
+    // Apply sorting
+    filtered = [...filtered].sort((a, b) => {
+      const priceA = a.variants?.[0]?.prices?.[0]?.amount || 0;
+      const priceB = b.variants?.[0]?.prices?.[0]?.amount || 0;
+
+      switch (sortBy) {
+        case 'price-asc':
+          return priceA - priceB;
+        case 'price-desc':
+          return priceB - priceA;
+        case 'newest':
+          // Sort by created_at if available, otherwise keep order
+          return 0;
+        case 'popular':
+        default:
+          // Default order (most popular - could be based on sales, views, etc.)
+          return 0;
+      }
+    });
+
     setFilteredProducts(filtered);
-  }, [filters, allProducts]);
+  }, [filters, allProducts, sortBy, priceRange]);
 
   const filterOptions = getFilterOptions(allProducts);
 
@@ -143,7 +197,48 @@ export default function Laptops() {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filters Sidebar */}
             <aside className="lg:w-64 flex-shrink-0">
-              <div className="sticky top-20">
+              <div className="sticky top-20 space-y-4">
+                {/* Price Slider */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="font-semibold mb-4">Prijs</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between text-sm text-gray-600">
+                      <span>€{priceRange[0]}</span>
+                      <span>€{priceRange[1]}</span>
+                    </div>
+                    <div className="space-y-2">
+                      <input
+                        type="range"
+                        min="0"
+                        max={maxPrice}
+                        value={priceRange[1]}
+                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+                      />
+                      <div className="flex items-center gap-2 text-sm">
+                        <input
+                          type="number"
+                          min="0"
+                          max={priceRange[1]}
+                          value={priceRange[0]}
+                          onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                          className="w-20 px-2 py-1 border border-gray-300 rounded"
+                        />
+                        <span className="text-gray-500">-</span>
+                        <input
+                          type="number"
+                          min={priceRange[0]}
+                          max={maxPrice}
+                          value={priceRange[1]}
+                          onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || maxPrice])}
+                          className="w-20 px-2 py-1 border border-gray-300 rounded"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filters */}
                 <ProductFilters
                   options={filterOptions}
                   filters={filters}
@@ -154,11 +249,26 @@ export default function Laptops() {
 
             {/* Products Grid */}
             <div className="flex-1">
-              {/* Results Count */}
-              <div className="mb-6">
+              {/* Toolbar with Results Count and Sorting */}
+              <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <p className="text-sm text-gray-600">
                   {filteredProducts.length} {filteredProducts.length === 1 ? 'resultaat' : 'resultaten'}
                 </p>
+
+                {/* Sort Dropdown */}
+                <div className="flex items-center gap-2">
+                  <ArrowUpDown className="w-4 h-4 text-gray-500" />
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as SortOption)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  >
+                    <option value="popular">Meest Populair</option>
+                    <option value="price-asc">Prijs: Laag naar Hoog</option>
+                    <option value="price-desc">Prijs: Hoog naar Laag</option>
+                    <option value="newest">Nieuwste</option>
+                  </select>
+                </div>
               </div>
 
               {/* Product Grid */}

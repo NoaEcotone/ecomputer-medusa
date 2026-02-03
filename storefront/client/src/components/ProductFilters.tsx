@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, X, Cpu, MemoryStick, HardDrive, Monitor, MonitorSpeaker, Layers } from 'lucide-react';
 
 export interface FilterState {
   processorTypes: string[];
@@ -30,8 +30,9 @@ interface ProductFiltersProps {
 const MAX_VISIBLE_ITEMS = 8;
 
 export default function ProductFilters({ options, filters, onFilterChange }: ProductFiltersProps) {
+  // All sections open by default
   const [openSections, setOpenSections] = useState<Set<string>>(
-    new Set(['processor', 'ram', 'storage', 'screen'])
+    new Set(['processor', 'ram', 'storage', 'storageType', 'screen', 'resolution', 'graphics'])
   );
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
@@ -112,6 +113,7 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
         {options.processorTypes.length > 0 && (
           <FilterSection
             title="Processor"
+            icon={<Cpu className="w-4 h-4" />}
             isOpen={openSections.has('processor')}
             onToggle={() => toggleSection('processor')}
             items={options.processorTypes}
@@ -127,6 +129,7 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
         {options.ramSizes.length > 0 && (
           <FilterSection
             title="RAM Geheugen"
+            icon={<MemoryStick className="w-4 h-4" />}
             isOpen={openSections.has('ram')}
             onToggle={() => toggleSection('ram')}
             items={options.ramSizes}
@@ -142,6 +145,7 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
         {options.storageCapacities.length > 0 && (
           <FilterSection
             title="Opslag Capaciteit"
+            icon={<HardDrive className="w-4 h-4" />}
             isOpen={openSections.has('storage')}
             onToggle={() => toggleSection('storage')}
             items={options.storageCapacities}
@@ -157,6 +161,7 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
         {options.storageTypes.length > 0 && (
           <FilterSection
             title="Opslag Type"
+            icon={<Layers className="w-4 h-4" />}
             isOpen={openSections.has('storageType')}
             onToggle={() => toggleSection('storageType')}
             items={options.storageTypes}
@@ -172,6 +177,7 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
         {options.screenSizes.length > 0 && (
           <FilterSection
             title="Schermgrootte"
+            icon={<Monitor className="w-4 h-4" />}
             isOpen={openSections.has('screen')}
             onToggle={() => toggleSection('screen')}
             items={options.screenSizes}
@@ -187,6 +193,7 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
         {options.screenResolutions.length > 0 && (
           <FilterSection
             title="Schermresolutie"
+            icon={<MonitorSpeaker className="w-4 h-4" />}
             isOpen={openSections.has('resolution')}
             onToggle={() => toggleSection('resolution')}
             items={options.screenResolutions}
@@ -202,6 +209,7 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
         {options.graphicsTypes.length > 0 && (
           <FilterSection
             title="Videokaart Type"
+            icon={<Layers className="w-4 h-4" />}
             isOpen={openSections.has('graphics')}
             onToggle={() => toggleSection('graphics')}
             items={options.graphicsTypes}
@@ -221,6 +229,7 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
 
 function FilterSection<T extends string | number>({
   title,
+  icon,
   isOpen,
   onToggle,
   items,
@@ -231,6 +240,7 @@ function FilterSection<T extends string | number>({
   formatLabel,
 }: {
   title: string;
+  icon?: React.ReactNode;
   isOpen: boolean;
   onToggle: () => void;
   items: T[];
@@ -249,7 +259,10 @@ function FilterSection<T extends string | number>({
         onClick={onToggle}
         className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
       >
-        <h3 className="font-medium text-sm uppercase tracking-wide">{title}</h3>
+        <div className="flex items-center gap-2">
+          {icon && <span className="text-gray-600">{icon}</span>}
+          <h3 className="font-medium text-sm uppercase tracking-wide">{title}</h3>
+        </div>
         {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </button>
       {isOpen && (

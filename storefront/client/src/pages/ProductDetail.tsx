@@ -145,7 +145,7 @@ export default function ProductDetail() {
 
               {/* Thumbnail Gallery */}
               {imageGallery.length > 1 && (
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-6 gap-2">
                   {imageGallery.map((img, index) => (
                     <button
                       key={img.id || index}

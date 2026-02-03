@@ -3,8 +3,10 @@ import { useRoute } from 'wouter';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { ProductWithAttributes, formatPrice } from '@/lib/medusa';
-import { Loader2, ArrowLeft, Laptop } from 'lucide-react';
+import { Loader2, ArrowLeft, Laptop, ShoppingBag } from 'lucide-react';
 import { Link } from 'wouter';
+import { useCart } from '@/contexts/CartContext';
+import { Button } from '@/components/ui/button';
 
 export default function ProductDetail() {
   const [, params] = useRoute('/products/:handle');
@@ -15,6 +17,8 @@ export default function ProductDetail() {
   const [error, setError] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     async function fetchProduct() {
@@ -260,15 +264,49 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {/* CTA Placeholder */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                <h3 className="font-semibold text-blue-900 mb-2">Interesse in deze laptop?</h3>
-                <p className="text-blue-800 text-sm mb-4">
-                  Neem contact met ons op voor meer informatie over beschikbaarheid en huurmogelijkheden.
-                </p>
+              {/* Add to Cart Section */}
+              <div className="space-y-4">
+                <Button
+                  onClick={async () => {
+                    if (!variant) return;
+                    setIsAddingToCart(true);
+                    try {
+                      await addToCart(variant.id, 1, product.title);
+                    } catch (error) {
+                      console.error('Failed to add to cart:', error);
+                    } finally {
+                      setIsAddingToCart(false);
+                    }
+                  }}
+                  disabled={!variant || isAddingToCart}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-base font-semibold"
+                  size="lg"
+                >
+                  {isAddingToCart ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Toevoegen...
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-5 h-5 mr-2" />
+                      Toevoegen aan Winkelwagen
+                    </>
+                  )}
+                </Button>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-900">
+                    <strong>Let op:</strong> Huurperiode en betaalopties worden binnenkort toegevoegd. 
+                    Voeg producten toe aan je winkelwagen en neem contact op voor meer informatie.
+                  </p>
+                </div>
+
                 <Link href="/contact">
-                  <a className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                    Neem Contact Op
+                  <a className="block w-full">
+                    <Button variant="outline" className="w-full" size="lg">
+                      Neem Contact Op
+                    </Button>
                   </a>
                 </Link>
               </div>

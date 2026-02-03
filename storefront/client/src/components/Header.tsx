@@ -1,9 +1,11 @@
 import { Link } from "wouter";
-import { Laptop, Menu, X } from "lucide-react";
+import { Laptop, Menu, X, ShoppingBag } from "lucide-react";
 import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { itemCount, toggleCart } = useCart();
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
@@ -16,7 +18,8 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <div className="flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-8">
             <Link href="/" className="text-sm font-medium hover:text-gray-600 transition-colors">
               Home
             </Link>
@@ -30,6 +33,21 @@ export default function Header() {
               Contact
             </Link>
           </nav>
+
+          {/* Cart Button */}
+          <button
+            onClick={toggleCart}
+            className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Winkelwagen"
+          >
+            <ShoppingBag className="w-6 h-6" />
+            {itemCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {itemCount}
+              </span>
+            )}
+          </button>
+          </div>
 
           {/* Mobile Menu Button */}
           <button

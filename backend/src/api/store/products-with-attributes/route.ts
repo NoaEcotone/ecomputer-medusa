@@ -4,8 +4,8 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 /**
  * Custom Store API Endpoint: Products with Attributes
  * 
- * Returns all published products with their associated attributes
- * for the Ecomputer storefront.
+ * Returns all published products with their attributes extracted from metadata.
+ * This is simpler and more reliable than using a separate attributes table.
  * 
  * GET /store/products-with-attributes
  */
@@ -17,7 +17,7 @@ export async function GET(
     // Get the query service to fetch data
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-    // Fetch products with their variants and prices
+    // Fetch products with their variants, prices, and metadata
     const { data: products } = await query.graph({
       entity: "product",
       fields: [
@@ -36,39 +36,31 @@ export async function GET(
       },
     });
 
-    // Fetch all product attributes
-    const { data: allAttributes } = await query.graph({
-      entity: "product_attributes",
-      fields: [
-        "id",
-        "product_id",
-        "processor_type",
-        "processor_family",
-        "ram_size",
-        "storage_capacity",
-        "storage_type",
-        "screen_size",
-        "screen_resolution",
-        "graphics_type",
-        "graphics_card",
-        "condition",
-        "operating_system",
-      ],
-    });
-
-    // Create a map of product_id -> attributes for quick lookup
-    const attributesMap = new Map();
-    allAttributes.forEach((attr: any) => {
-      attributesMap.set(attr.product_id, attr);
-    });
-
-    // Combine products with their attributes
+    // Extract filterable attributes from metadata
     const productsWithAttributes = products.map((product: any) => {
-      const attributes = attributesMap.get(product.id);
+      const metadata = product.metadata || {};
+      
+      // Extract filterable attributes from metadata
+      const attributes = {
+        processor_type: metadata.processor_type || null,
+        processor_family: metadata.processor_family || null,
+        ram_size: metadata.ram_size || null,
+        storage_capacity: metadata.storage_capacity || null,
+        storage_type: metadata.storage_type || null,
+        screen_size: metadata.screen_size || null,
+        screen_resolution: metadata.screen_resolution || null,
+        graphics_type: metadata.graphics_type || null,
+        graphics_card: metadata.graphics_card || null,
+        condition: metadata.condition || null,
+        operating_system: metadata.operating_system || null,
+      };
+      
+      // Only include attributes if at least one field has a value
+      const hasAttributes = Object.values(attributes).some(val => val !== null);
       
       return {
         ...product,
-        attributes: attributes || null,
+        attributes: hasAttributes ? attributes : null,
       };
     });
 

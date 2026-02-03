@@ -174,16 +174,16 @@ export default function ProductDetail() {
               <div>
                 <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
                 {product.description && (() => {
-                  const lines = product.description.split('\n').filter(line => line.trim());
-                  const hasMultipleLines = lines.length > 5;
-                  const displayText = hasMultipleLines && !isDescriptionExpanded 
-                    ? lines.slice(0, 5).join('\n') + '...'
+                  const MAX_CHARS = 300; // Show first 300 characters
+                  const isLongDescription = product.description.length > MAX_CHARS;
+                  const displayText = isLongDescription && !isDescriptionExpanded 
+                    ? product.description.substring(0, MAX_CHARS) + '...'
                     : product.description;
                   
                   return (
                     <div>
                       <p className="text-gray-600 whitespace-pre-line">{displayText}</p>
-                      {hasMultipleLines && (
+                      {isLongDescription && (
                         <button
                           onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
                           className="text-blue-600 hover:text-blue-800 font-medium text-sm mt-2 transition-colors"

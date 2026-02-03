@@ -14,9 +14,62 @@ module.exports = defineConfig({
     }
   },
   modules: [
+    // Core Commerce Modules
+    {
+      resolve: "@medusajs/medusa/api-key",
+    },
+    {
+      resolve: "@medusajs/medusa/auth",
+    },
     {
       resolve: "@medusajs/medusa/cart",
     },
+    {
+      resolve: "@medusajs/medusa/currency",
+    },
+    {
+      resolve: "@medusajs/medusa/customer",
+    },
+    {
+      resolve: "@medusajs/medusa/fulfillment",
+    },
+    {
+      resolve: "@medusajs/medusa/inventory",
+    },
+    {
+      resolve: "@medusajs/medusa/order",
+    },
+    {
+      resolve: "@medusajs/medusa/payment",
+    },
+    {
+      resolve: "@medusajs/medusa/pricing",
+    },
+    {
+      resolve: "@medusajs/medusa/product",
+    },
+    {
+      resolve: "@medusajs/medusa/promotion",
+    },
+    {
+      resolve: "@medusajs/medusa/region",
+    },
+    {
+      resolve: "@medusajs/medusa/sales-channel",
+    },
+    {
+      resolve: "@medusajs/medusa/stock-location",
+    },
+    {
+      resolve: "@medusajs/medusa/store",
+    },
+    {
+      resolve: "@medusajs/medusa/tax",
+    },
+    {
+      resolve: "@medusajs/medusa/user",
+    },
+    // Custom Modules
     {
       resolve: "./src/modules/product-attributes",
     },

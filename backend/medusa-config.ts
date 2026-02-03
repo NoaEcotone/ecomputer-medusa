@@ -15,6 +15,9 @@ module.exports = defineConfig({
   },
   modules: [
     {
+      resolve: "@medusajs/medusa/cart",
+    },
+    {
       resolve: "./src/modules/product-attributes",
     },
   ],

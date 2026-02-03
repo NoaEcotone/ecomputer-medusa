@@ -12,9 +12,20 @@ export default async function setProductThumbnails({ container }: ExecArgs) {
   logger.info("Setting product thumbnails from first gallery image...")
 
   // Get all products with their images
-  const { data: products } = await productService.listProducts({}, {
-    relations: ["images"],
-  })
+  let products
+  try {
+    const result = await productService.listProducts({}, {
+      relations: ["images"],
+    })
+    products = result.data || result
+    
+    logger.info(`Raw result type: ${typeof result}`)
+    logger.info(`Has data property: ${!!result.data}`)
+    logger.info(`Products array length: ${products?.length || 0}`)
+  } catch (error) {
+    logger.error(`Error fetching products: ${error.message}`)
+    throw error
+  }
 
   if (!products || products.length === 0) {
     logger.warn("No products found")

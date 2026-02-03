@@ -29,13 +29,28 @@ interface ProductFiltersProps {
   onFilterChange: (filters: FilterState) => void;
 }
 
+const MAX_VISIBLE_ITEMS = 8;
+
 export default function ProductFilters({ options, filters, onFilterChange }: ProductFiltersProps) {
   const [openSections, setOpenSections] = useState<Set<string>>(
     new Set(['processor', 'ram', 'storage', 'screen'])
   );
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   const toggleSection = (section: string) => {
     setOpenSections(prev => {
+      const next = new Set(prev);
+      if (next.has(section)) {
+        next.delete(section);
+      } else {
+        next.add(section);
+      }
+      return next;
+    });
+  };
+
+  const toggleExpanded = (section: string) => {
+    setExpandedSections(prev => {
       const next = new Set(prev);
       if (next.has(section)) {
         next.delete(section);
@@ -79,9 +94,9 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
   );
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col max-h-[calc(100vh-8rem)]">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
         <h2 className="text-lg font-semibold">Filters</h2>
         {hasActiveFilters && (
           <button
@@ -94,24 +109,21 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
         )}
       </div>
 
-      {/* Filter Content */}
-      <div className="divide-y divide-gray-200">
+      {/* Filter Content - Scrollable */}
+      <div className="divide-y divide-gray-200 overflow-y-auto flex-1">
         {/* Processor Type */}
         {options.processorTypes.length > 0 && (
           <FilterSection
             title="Processor"
             isOpen={openSections.has('processor')}
             onToggle={() => toggleSection('processor')}
-          >
-            {options.processorTypes.map((type) => (
-              <FilterCheckbox
-                key={type}
-                label={type}
-                checked={filters.processorTypes.includes(type)}
-                onChange={() => handleCheckboxChange('processorTypes', type)}
-              />
-            ))}
-          </FilterSection>
+            items={options.processorTypes}
+            selectedItems={filters.processorTypes}
+            onItemChange={(value) => handleCheckboxChange('processorTypes', value)}
+            isExpanded={expandedSections.has('processor')}
+            onToggleExpanded={() => toggleExpanded('processor')}
+            formatLabel={(item) => item}
+          />
         )}
 
         {/* RAM Size */}
@@ -120,16 +132,13 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
             title="RAM Geheugen"
             isOpen={openSections.has('ram')}
             onToggle={() => toggleSection('ram')}
-          >
-            {options.ramSizes.map((size) => (
-              <FilterCheckbox
-                key={size}
-                label={`${size} GB`}
-                checked={filters.ramSizes.includes(size)}
-                onChange={() => handleCheckboxChange('ramSizes', size)}
-              />
-            ))}
-          </FilterSection>
+            items={options.ramSizes}
+            selectedItems={filters.ramSizes}
+            onItemChange={(value) => handleCheckboxChange('ramSizes', value)}
+            isExpanded={expandedSections.has('ram')}
+            onToggleExpanded={() => toggleExpanded('ram')}
+            formatLabel={(item) => `${item} GB`}
+          />
         )}
 
         {/* Storage Capacity */}
@@ -138,16 +147,13 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
             title="Opslag Capaciteit"
             isOpen={openSections.has('storage')}
             onToggle={() => toggleSection('storage')}
-          >
-            {options.storageCapacities.map((capacity) => (
-              <FilterCheckbox
-                key={capacity}
-                label={capacity >= 1000 ? `${capacity / 1000} TB` : `${capacity} GB`}
-                checked={filters.storageCapacities.includes(capacity)}
-                onChange={() => handleCheckboxChange('storageCapacities', capacity)}
-              />
-            ))}
-          </FilterSection>
+            items={options.storageCapacities}
+            selectedItems={filters.storageCapacities}
+            onItemChange={(value) => handleCheckboxChange('storageCapacities', value)}
+            isExpanded={expandedSections.has('storage')}
+            onToggleExpanded={() => toggleExpanded('storage')}
+            formatLabel={(item) => item >= 1000 ? `${item / 1000} TB` : `${item} GB`}
+          />
         )}
 
         {/* Storage Type */}
@@ -156,16 +162,13 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
             title="Opslag Type"
             isOpen={openSections.has('storageType')}
             onToggle={() => toggleSection('storageType')}
-          >
-            {options.storageTypes.map((type) => (
-              <FilterCheckbox
-                key={type}
-                label={type}
-                checked={filters.storageTypes.includes(type)}
-                onChange={() => handleCheckboxChange('storageTypes', type)}
-              />
-            ))}
-          </FilterSection>
+            items={options.storageTypes}
+            selectedItems={filters.storageTypes}
+            onItemChange={(value) => handleCheckboxChange('storageTypes', value)}
+            isExpanded={expandedSections.has('storageType')}
+            onToggleExpanded={() => toggleExpanded('storageType')}
+            formatLabel={(item) => item}
+          />
         )}
 
         {/* Screen Size */}
@@ -174,16 +177,13 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
             title="Schermgrootte"
             isOpen={openSections.has('screen')}
             onToggle={() => toggleSection('screen')}
-          >
-            {options.screenSizes.map((size) => (
-              <FilterCheckbox
-                key={size}
-                label={`${size}"`}
-                checked={filters.screenSizes.includes(size)}
-                onChange={() => handleCheckboxChange('screenSizes', size)}
-              />
-            ))}
-          </FilterSection>
+            items={options.screenSizes}
+            selectedItems={filters.screenSizes}
+            onItemChange={(value) => handleCheckboxChange('screenSizes', value)}
+            isExpanded={expandedSections.has('screen')}
+            onToggleExpanded={() => toggleExpanded('screen')}
+            formatLabel={(item) => `${item}"`}
+          />
         )}
 
         {/* Screen Resolution */}
@@ -192,16 +192,13 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
             title="Schermresolutie"
             isOpen={openSections.has('resolution')}
             onToggle={() => toggleSection('resolution')}
-          >
-            {options.screenResolutions.map((resolution) => (
-              <FilterCheckbox
-                key={resolution}
-                label={resolution}
-                checked={filters.screenResolutions.includes(resolution)}
-                onChange={() => handleCheckboxChange('screenResolutions', resolution)}
-              />
-            ))}
-          </FilterSection>
+            items={options.screenResolutions}
+            selectedItems={filters.screenResolutions}
+            onItemChange={(value) => handleCheckboxChange('screenResolutions', value)}
+            isExpanded={expandedSections.has('resolution')}
+            onToggleExpanded={() => toggleExpanded('resolution')}
+            formatLabel={(item) => item}
+          />
         )}
 
         {/* Graphics Type */}
@@ -210,16 +207,13 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
             title="Videokaart Type"
             isOpen={openSections.has('graphics')}
             onToggle={() => toggleSection('graphics')}
-          >
-            {options.graphicsTypes.map((type) => (
-              <FilterCheckbox
-                key={type}
-                label={type}
-                checked={filters.graphicsTypes.includes(type)}
-                onChange={() => handleCheckboxChange('graphicsTypes', type)}
-              />
-            ))}
-          </FilterSection>
+            items={options.graphicsTypes}
+            selectedItems={filters.graphicsTypes}
+            onItemChange={(value) => handleCheckboxChange('graphicsTypes', value)}
+            isExpanded={expandedSections.has('graphics')}
+            onToggleExpanded={() => toggleExpanded('graphics')}
+            formatLabel={(item) => item}
+          />
         )}
 
         {/* Condition */}
@@ -228,33 +222,43 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
             title="Conditie"
             isOpen={openSections.has('condition')}
             onToggle={() => toggleSection('condition')}
-          >
-            {options.conditions.map((condition) => (
-              <FilterCheckbox
-                key={condition}
-                label={condition}
-                checked={filters.conditions.includes(condition)}
-                onChange={() => handleCheckboxChange('conditions', condition)}
-              />
-            ))}
-          </FilterSection>
+            items={options.conditions}
+            selectedItems={filters.conditions}
+            onItemChange={(value) => handleCheckboxChange('conditions', value)}
+            isExpanded={expandedSections.has('condition')}
+            onToggleExpanded={() => toggleExpanded('condition')}
+            formatLabel={(item) => item}
+          />
         )}
       </div>
     </div>
   );
 }
 
-function FilterSection({
+function FilterSection<T extends string | number>({
   title,
   isOpen,
   onToggle,
-  children,
+  items,
+  selectedItems,
+  onItemChange,
+  isExpanded,
+  onToggleExpanded,
+  formatLabel,
 }: {
   title: string;
   isOpen: boolean;
   onToggle: () => void;
-  children: React.ReactNode;
+  items: T[];
+  selectedItems: T[];
+  onItemChange: (value: T) => void;
+  isExpanded: boolean;
+  onToggleExpanded: () => void;
+  formatLabel: (item: T) => string;
 }) {
+  const hasMore = items.length > MAX_VISIBLE_ITEMS;
+  const visibleItems = isExpanded ? items : items.slice(0, MAX_VISIBLE_ITEMS);
+
   return (
     <div>
       <button
@@ -264,7 +268,28 @@ function FilterSection({
         <h3 className="font-medium text-sm uppercase tracking-wide">{title}</h3>
         {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </button>
-      {isOpen && <div className="px-4 pb-4 space-y-2 max-h-64 overflow-y-auto">{children}</div>}
+      {isOpen && (
+        <div className="px-4 pb-4">
+          <div className="space-y-2">
+            {visibleItems.map((item) => (
+              <FilterCheckbox
+                key={String(item)}
+                label={formatLabel(item)}
+                checked={selectedItems.includes(item)}
+                onChange={() => onItemChange(item)}
+              />
+            ))}
+          </div>
+          {hasMore && (
+            <button
+              onClick={onToggleExpanded}
+              className="mt-3 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+            >
+              {isExpanded ? '- Minder weergeven' : `+ Meer weergeven (${items.length - MAX_VISIBLE_ITEMS} meer)`}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

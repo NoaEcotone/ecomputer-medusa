@@ -23,6 +23,12 @@ export default function Header() {
             <Link href="/laptops" className="text-sm font-medium hover:text-gray-600 transition-colors">
               Laptops
             </Link>
+            <Link href="/about" className="text-sm font-medium hover:text-gray-600 transition-colors">
+              Over Ons
+            </Link>
+            <Link href="/contact" className="text-sm font-medium hover:text-gray-600 transition-colors">
+              Contact
+            </Link>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -50,6 +56,20 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Laptops
+            </Link>
+            <Link
+              href="/about"
+              className="block py-2 text-sm font-medium hover:text-gray-600 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Over Ons
+            </Link>
+            <Link
+              href="/contact"
+              className="block py-2 text-sm font-medium hover:text-gray-600 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Contact
             </Link>
           </nav>
         )}

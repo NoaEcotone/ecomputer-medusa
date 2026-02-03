@@ -59,10 +59,9 @@ export default async function setProductThumbnails({ container }: ExecArgs) {
       const thumbnailUrl = firstImage.url
 
       // Update product with thumbnail
-      await productService.updateProducts([{
-        id: product.id,
+      await productService.updateProducts(product.id, {
         thumbnail: thumbnailUrl,
-      }])
+      })
 
       logger.info(`  ✓ Set thumbnail for "${product.title}" → ${thumbnailUrl}`)
       updatedCount++

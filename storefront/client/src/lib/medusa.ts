@@ -77,18 +77,27 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 /**
- * Fetch all products with their attributes from metadata
+ * Fetch all products with their attributes from the custom endpoint
  */
 export async function getProductsWithAttributes(): Promise<ProductWithAttributes[]> {
-  const products = await getProducts();
-  
-  // Extract attributes from metadata
-  const productsWithAttributes: ProductWithAttributes[] = products.map(product => ({
-    ...product,
-    attributes: product.metadata as ProductAttributes | undefined,
-  }));
+  try {
+    const response = await fetch(`${MEDUSA_BACKEND_URL}/store/products-with-attributes`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-publishable-api-key': MEDUSA_PUBLISHABLE_KEY,
+      },
+    });
 
-  return productsWithAttributes;
+    if (!response.ok) {
+      throw new Error(`Failed to fetch products with attributes: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.products || [];
+  } catch (error) {
+    console.error('Error fetching products with attributes:', error);
+    return [];
+  }
 }
 
 /**

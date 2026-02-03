@@ -59,9 +59,7 @@ export async function createCart(): Promise<Cart> {
         'Content-Type': 'application/json',
         'x-publishable-api-key': MEDUSA_PUBLISHABLE_KEY,
       },
-      body: JSON.stringify({
-        region_id: 'reg_01JKHQVXQXQXQXQXQXQXQXQXQX', // Default region, adjust as needed
-      }),
+      body: JSON.stringify({}),
     });
 
     if (!response.ok) {

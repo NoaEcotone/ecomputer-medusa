@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRoute } from 'wouter';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -13,6 +13,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<ProductWithAttributes | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -91,8 +92,21 @@ export default function ProductDetail() {
   const variant = product.variants?.[0];
   const price = variant?.prices?.[0];
   
-  // Use thumbnail if available, otherwise use first image from images array
-  const imageUrl = product.thumbnail || product.images?.[0]?.url;
+  // Build image gallery array
+  const imageGallery = [];
+  if (product.thumbnail) {
+    imageGallery.push({ url: product.thumbnail, id: 'thumbnail' });
+  }
+  if (product.images && product.images.length > 0) {
+    product.images.forEach(img => {
+      // Avoid duplicate if thumbnail is same as first image
+      if (!product.thumbnail || img.url !== product.thumbnail) {
+        imageGallery.push(img);
+      }
+    });
+  }
+  
+  const currentImage = imageGallery[selectedImageIndex];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -112,30 +126,51 @@ export default function ProductDetail() {
 
           {/* Product Content */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Product Image */}
-            <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-              <div className="aspect-[4/3] bg-gray-100 flex items-center justify-center">
-                {imageUrl ? (
-                  <img
-                    src={imageUrl}
-                    alt={product.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <Laptop className="w-32 h-32 text-gray-300" />
-                )}
+            {/* Product Images Gallery */}
+            <div className="space-y-4">
+              {/* Main Image */}
+              <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
+                <div className="aspect-[4/3] bg-gray-100 flex items-center justify-center">
+                  {currentImage ? (
+                    <img
+                      src={currentImage.url}
+                      alt={product.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Laptop className="w-32 h-32 text-gray-300" />
+                  )}
+                </div>
               </div>
+
+              {/* Thumbnail Gallery */}
+              {imageGallery.length > 1 && (
+                <div className="grid grid-cols-4 gap-3">
+                  {imageGallery.map((img, index) => (
+                    <button
+                      key={img.id || index}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`aspect-square bg-white rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedImageIndex === index
+                          ? 'border-black shadow-md'
+                          : 'border-gray-200 hover:border-gray-400'
+                      }`}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`${product.title} - afbeelding ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Product Info */}
             <div className="space-y-6">
-              {/* Title and Condition */}
+              {/* Title */}
               <div>
-                {attrs?.condition && (
-                  <span className="inline-block px-3 py-1 bg-gray-100 text-sm font-medium rounded-full mb-3">
-                    {attrs.condition}
-                  </span>
-                )}
                 <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
                 {product.description && (
                   <p className="text-gray-600">{product.description}</p>
@@ -207,64 +242,61 @@ export default function ProductDetail() {
               )}
 
               {/* CTA Placeholder */}
-              <div className="space-y-3">
-                <button
-                  disabled
-                  className="w-full bg-gray-300 text-gray-600 px-6 py-3 rounded-lg font-medium cursor-not-allowed"
-                >
-                  Toevoegen aan winkelwagen (binnenkort beschikbaar)
-                </button>
-                <p className="text-sm text-gray-500 text-center">
-                  Huurperiode en checkout worden later toegevoegd
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <h3 className="font-semibold text-blue-900 mb-2">Interesse in deze laptop?</h3>
+                <p className="text-blue-800 text-sm mb-4">
+                  Neem contact met ons op voor meer informatie over beschikbaarheid en huurmogelijkheden.
                 </p>
+                <Link href="/contact">
+                  <a className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Neem Contact Op
+                  </a>
+                </Link>
               </div>
             </div>
           </div>
 
-          {/* Additional Specs */}
-          {product.metadata && (
-            <div className="mt-12 bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold mb-6">Volledige specificaties</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                {Object.entries(product.metadata).map(([key, value]) => {
-                  // Skip attributes that are already shown above
-                  if (['processor_type', 'processor_family', 'ram_size', 'storage_capacity', 
-                       'storage_type', 'screen_size', 'screen_resolution', 'graphics_type', 
-                       'graphics_card', 'condition', 'operating_system'].includes(key)) {
-                    return null;
-                  }
-
-                  // Skip null/empty values
-                  if (!value || value === 'null') return null;
-
-                  // Format the key
-                  const formattedKey = key
-                    .replace(/_/g, ' ')
-                    .replace(/\b\w/g, (l) => l.toUpperCase());
-
-                  // Format the value
-                  let formattedValue = value;
-                  if (typeof value === 'string' && value.startsWith('{')) {
-                    try {
-                      const parsed = JSON.parse(value);
-                      formattedValue = Object.entries(parsed)
-                        .filter(([, v]) => v && v !== 'null')
-                        .map(([k, v]) => `${k}: ${v}`)
-                        .join(', ');
-                      if (!formattedValue) return null;
-                    } catch {
-                      // Keep original value if parsing fails
-                    }
-                  }
-
-                  return (
-                    <div key={key} className="flex justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">{formattedKey}</span>
-                      <span className="font-medium text-right">{formattedValue}</span>
-                    </div>
-                  );
-                })}
+          {/* Full Specifications Table */}
+          {attrs && (
+            <div className="mt-12 bg-white rounded-lg border border-gray-200 p-8">
+              <h2 className="text-2xl font-bold mb-6">Volledige Specificaties</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                {attrs.processor_type && (
+                  <SpecRow label="Processor Type" value={attrs.processor_type} />
+                )}
+                {attrs.processor_family && (
+                  <SpecRow label="Processor Familie" value={attrs.processor_family} />
+                )}
+                {attrs.ram_size && (
+                  <SpecRow label="RAM Geheugen" value={`${attrs.ram_size} GB`} />
+                )}
+                {attrs.storage_capacity && (
+                  <SpecRow 
+                    label="Opslag Capaciteit" 
+                    value={attrs.storage_capacity >= 1000 
+                      ? `${attrs.storage_capacity / 1000} TB` 
+                      : `${attrs.storage_capacity} GB`
+                    } 
+                  />
+                )}
+                {attrs.storage_type && (
+                  <SpecRow label="Opslag Type" value={attrs.storage_type} />
+                )}
+                {attrs.screen_size && (
+                  <SpecRow label="Schermgrootte" value={`${attrs.screen_size}"`} />
+                )}
+                {attrs.screen_resolution && (
+                  <SpecRow label="Schermresolutie" value={attrs.screen_resolution} />
+                )}
+                {attrs.graphics_type && (
+                  <SpecRow label="Videokaart Type" value={attrs.graphics_type} />
+                )}
+                {attrs.graphics_card && (
+                  <SpecRow label="Videokaart" value={attrs.graphics_card} />
+                )}
+                {attrs.operating_system && (
+                  <SpecRow label="Besturingssysteem" value={attrs.operating_system} />
+                )}
               </div>
             </div>
           )}
@@ -272,6 +304,15 @@ export default function ProductDetail() {
       </main>
 
       <Footer />
+    </div>
+  );
+}
+
+function SpecRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between py-2 border-b border-gray-100">
+      <span className="text-gray-600">{label}</span>
+      <span className="font-medium text-right">{value}</span>
     </div>
   );
 }

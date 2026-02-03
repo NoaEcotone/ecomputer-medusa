@@ -119,7 +119,6 @@ export function getFilterOptions(products: ProductWithAttributes[]) {
   const screenSizes = new Set<number>();
   const screenResolutions = new Set<string>();
   const graphicsTypes = new Set<string>();
-  const conditions = new Set<string>();
 
   products.forEach(product => {
     const attrs = product.attributes;
@@ -132,7 +131,6 @@ export function getFilterOptions(products: ProductWithAttributes[]) {
     if (attrs.screen_size) screenSizes.add(attrs.screen_size);
     if (attrs.screen_resolution) screenResolutions.add(attrs.screen_resolution);
     if (attrs.graphics_type) graphicsTypes.add(attrs.graphics_type);
-    if (attrs.condition) conditions.add(attrs.condition);
   });
 
   return {
@@ -143,7 +141,6 @@ export function getFilterOptions(products: ProductWithAttributes[]) {
     screenSizes: Array.from(screenSizes).sort((a, b) => a - b),
     screenResolutions: Array.from(screenResolutions).sort(),
     graphicsTypes: Array.from(graphicsTypes).sort(),
-    conditions: Array.from(conditions).sort(),
   };
 }
 

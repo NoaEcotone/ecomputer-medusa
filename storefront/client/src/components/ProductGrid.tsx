@@ -52,13 +52,6 @@ function ProductCard({ product }: { product: ProductWithAttributes }) {
             <Laptop className="w-16 h-16 text-gray-300" />
           </div>
         )}
-        
-        {/* Condition Badge */}
-        {attrs?.condition && (
-          <div className="absolute top-3 right-3 bg-white px-3 py-1 rounded-full text-xs font-medium border border-gray-200 shadow-sm">
-            {attrs.condition}
-          </div>
-        )}
       </div>
 
       {/* Content */}

@@ -22,7 +22,6 @@ export default function Laptops() {
     screenSizes: [],
     screenResolutions: [],
     graphicsTypes: [],
-    conditions: [],
   });
 
   // Fetch products on mount
@@ -97,14 +96,6 @@ export default function Laptops() {
       if (
         filters.graphicsTypes.length > 0 &&
         (!attrs.graphics_type || !filters.graphicsTypes.includes(attrs.graphics_type))
-      ) {
-        return false;
-      }
-
-      // Condition
-      if (
-        filters.conditions.length > 0 &&
-        (!attrs.condition || !filters.conditions.includes(attrs.condition))
       ) {
         return false;
       }

@@ -9,7 +9,6 @@ export interface FilterState {
   screenSizes: number[];
   screenResolutions: string[];
   graphicsTypes: string[];
-  conditions: string[];
 }
 
 interface FilterOptions {
@@ -20,7 +19,6 @@ interface FilterOptions {
   screenSizes: number[];
   screenResolutions: string[];
   graphicsTypes: string[];
-  conditions: string[];
 }
 
 interface ProductFiltersProps {
@@ -85,7 +83,6 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
       screenSizes: [],
       screenResolutions: [],
       graphicsTypes: [],
-      conditions: [],
     });
   };
 
@@ -216,20 +213,7 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
           />
         )}
 
-        {/* Condition */}
-        {options.conditions.length > 0 && (
-          <FilterSection
-            title="Conditie"
-            isOpen={openSections.has('condition')}
-            onToggle={() => toggleSection('condition')}
-            items={options.conditions}
-            selectedItems={filters.conditions}
-            onItemChange={(value) => handleCheckboxChange('conditions', value)}
-            isExpanded={expandedSections.has('condition')}
-            onToggleExpanded={() => toggleExpanded('condition')}
-            formatLabel={(item) => item}
-          />
-        )}
+
       </div>
     </div>
   );

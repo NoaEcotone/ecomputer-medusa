@@ -14,6 +14,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -172,9 +173,27 @@ export default function ProductDetail() {
               {/* Title */}
               <div>
                 <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
-                {product.description && (
-                  <p className="text-gray-600">{product.description}</p>
-                )}
+                {product.description && (() => {
+                  const lines = product.description.split('\n').filter(line => line.trim());
+                  const hasMultipleLines = lines.length > 5;
+                  const displayText = hasMultipleLines && !isDescriptionExpanded 
+                    ? lines.slice(0, 5).join('\n') + '...'
+                    : product.description;
+                  
+                  return (
+                    <div>
+                      <p className="text-gray-600 whitespace-pre-line">{displayText}</p>
+                      {hasMultipleLines && (
+                        <button
+                          onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                          className="text-blue-600 hover:text-blue-800 font-medium text-sm mt-2 transition-colors"
+                        >
+                          {isDescriptionExpanded ? 'Minder lezen' : 'Meer lezen'}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Price */}

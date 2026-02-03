@@ -35,13 +35,27 @@ export default function Laptops() {
       setLoading(true);
       const products = await getProductsWithAttributes();
       
-      // Filter to only show laptops (exclude monitors, desktops, etc.)
+      // Filter to only show laptops (exclude monitors, desktops, accessories, etc.)
       const laptopsOnly = products.filter(product => {
         const title = product.title.toLowerCase();
-        // Exclude monitors and desktops
-        if (title.includes('monitor') || title.includes('desktop') || title.includes('all-in-one')) {
-          return false;
+        // Exclude non-laptop products
+        const excludeKeywords = [
+          'monitor',
+          'desktop', 
+          'all-in-one',
+          'adapter',
+          'docking',
+          'dock',
+          'tower',
+          'workstation'
+        ];
+        
+        for (const keyword of excludeKeywords) {
+          if (title.includes(keyword)) {
+            return false;
+          }
         }
+        
         // Include laptops, notebooks, chromebooks, etc.
         return true;
       });
@@ -206,22 +220,61 @@ export default function Laptops() {
                       <span>€{priceRange[0]}</span>
                       <span>€{priceRange[1]}</span>
                     </div>
-                    <div className="space-y-2">
-                      <input
-                        type="range"
-                        min="0"
-                        max={maxPrice}
-                        value={priceRange[1]}
-                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
-                      />
+                    <div className="space-y-3">
+                      {/* Dual Range Slider */}
+                      <div className="relative h-2">
+                        {/* Track */}
+                        <div className="absolute w-full h-2 bg-gray-200 rounded-lg"></div>
+                        {/* Active Range */}
+                        <div 
+                          className="absolute h-2 bg-black rounded-lg"
+                          style={{
+                            left: `${(priceRange[0] / maxPrice) * 100}%`,
+                            right: `${100 - (priceRange[1] / maxPrice) * 100}%`
+                          }}
+                        ></div>
+                        {/* Min Handle */}
+                        <input
+                          type="range"
+                          min="0"
+                          max={maxPrice}
+                          value={priceRange[0]}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value);
+                            if (value < priceRange[1]) {
+                              setPriceRange([value, priceRange[1]]);
+                            }
+                          }}
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
+                        />
+                        {/* Max Handle */}
+                        <input
+                          type="range"
+                          min="0"
+                          max={maxPrice}
+                          value={priceRange[1]}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value);
+                            if (value > priceRange[0]) {
+                              setPriceRange([priceRange[0], value]);
+                            }
+                          }}
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-black [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
+                        />
+                      </div>
+                      {/* Manual Inputs */}
                       <div className="flex items-center gap-2 text-sm">
                         <input
                           type="number"
                           min="0"
                           max={priceRange[1]}
                           value={priceRange[0]}
-                          onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || 0;
+                            if (value < priceRange[1]) {
+                              setPriceRange([value, priceRange[1]]);
+                            }
+                          }}
                           className="w-20 px-2 py-1 border border-gray-300 rounded"
                         />
                         <span className="text-gray-500">-</span>
@@ -230,7 +283,12 @@ export default function Laptops() {
                           min={priceRange[0]}
                           max={maxPrice}
                           value={priceRange[1]}
-                          onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || maxPrice])}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || maxPrice;
+                            if (value > priceRange[0]) {
+                              setPriceRange([priceRange[0], value]);
+                            }
+                          }}
                           className="w-20 px-2 py-1 border border-gray-300 rounded"
                         />
                       </div>

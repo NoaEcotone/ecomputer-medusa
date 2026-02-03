@@ -92,7 +92,7 @@ export default function ProductFilters({ options, filters, onFilterChange }: Pro
   );
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col max-h-[calc(100vh-8rem)]">
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col max-h-[calc(100vh-20rem)]">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
         <h2 className="text-lg font-semibold">Filters</h2>

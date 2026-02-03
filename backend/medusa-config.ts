@@ -68,6 +68,9 @@ module.exports = defineConfig({
     },
     {
       resolve: "@medusajs/medusa/user",
+      options: {
+        jwt_secret: process.env.JWT_SECRET || "supersecret",
+      },
     },
     // Custom Modules
     {

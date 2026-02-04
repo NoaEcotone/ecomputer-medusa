@@ -1,19 +1,19 @@
-import * as zod from "zod"
+import { z } from "zod"
 import { useForm, FormProvider, Controller } from "react-hook-form"
 import { FocusModal, Heading, Label, Input, Button, Select, Switch, toast } from "@medusajs/ui"
 import { useState } from "react"
 
 // Validation schema
-const schema = zod.object({
-  product_id: zod.string().min(1, "Product ID is verplicht"),
-  flex_monthly_price: zod.number().min(0, "Flex prijs moet positief zijn").optional().nullable(),
-  year_monthly_price: zod.number().min(0, "Jaar prijs moet positief zijn").optional().nullable(),
-  deposit_amount: zod.number().min(0, "Borg moet positief zijn"),
-  flex_available: zod.boolean(),
-  year_available: zod.boolean(),
+const schema = z.object({
+  product_id: z.string().min(1, "Product ID is verplicht"),
+  flex_monthly_price: z.number().min(0, "Flex prijs moet positief zijn").optional().nullable(),
+  year_monthly_price: z.number().min(0, "Jaar prijs moet positief zijn").optional().nullable(),
+  deposit_amount: z.number().min(0, "Borg moet positief zijn"),
+  flex_available: z.boolean(),
+  year_available: z.boolean(),
 })
 
-type FormData = zod.infer<typeof schema>
+type FormData = z.infer<typeof schema>
 
 export const RentalPricingCreateForm = () => {
   const [isOpen, setIsOpen] = useState(false)

@@ -17,7 +17,7 @@ interface QuoteRequestDialogProps {
   onOpenChange: (open: boolean) => void;
   productId: string;
   productTitle: string;
-  rentalType: 'flex' | 'jaar';
+  rentalType: 'flex' | 'jaar' | 'korte_termijn';
 }
 
 export default function QuoteRequestDialog({
@@ -41,8 +41,54 @@ export default function QuoteRequestDialog({
     message: '',
   });
 
+  // Calculate days between two dates
+  const calculateDays = (start: string, end: string) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  // Validate rental period based on type
+  const validatePeriod = () => {
+    if (!formData.desired_period_start || !formData.desired_period_end) {
+      return 'Selecteer een start- en einddatum';
+    }
+
+    const days = calculateDays(formData.desired_period_start, formData.desired_period_end);
+
+    if (rentalType === 'flex') {
+      // Flex: minimum 3 months (90 days)
+      if (days < 90) {
+        return 'Flex huur vereist een minimum periode van 3 maanden (90 dagen)';
+      }
+    } else if (rentalType === 'jaar') {
+      // Jaar: minimum 12 months (365 days)
+      if (days < 365) {
+        return 'Jaar huur vereist een minimum periode van 12 maanden (365 dagen)';
+      }
+    } else if (rentalType === 'korte_termijn') {
+      // Korte termijn: maximum 4 weeks (28 days)
+      if (days > 28) {
+        return 'Korte termijn huur is maximaal 4 weken (28 dagen). Kies Flex voor langere periodes.';
+      }
+      if (days < 1) {
+        return 'Minimum huurperiode is 1 dag';
+      }
+    }
+
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate period
+    const periodError = validatePeriod();
+    if (periodError) {
+      setError(periodError);
+      return;
+    }
     setLoading(true);
     setError(null);
 

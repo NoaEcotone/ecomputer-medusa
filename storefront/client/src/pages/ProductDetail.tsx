@@ -18,7 +18,7 @@ export default function ProductDetail() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
-  const [selectedRentalType, setSelectedRentalType] = useState<'flex' | 'jaar'>('flex');
+  const [selectedRentalType, setSelectedRentalType] = useState<'flex' | 'jaar' | 'korte_termijn'>('flex');
 
   useEffect(() => {
     async function fetchProduct() {

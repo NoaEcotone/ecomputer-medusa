@@ -17,6 +17,7 @@ BEGIN;
 -- ============================================
 
 INSERT INTO rental_pricing (
+  id,
   product_id, 
   flex_monthly_price, 
   year_monthly_price, 
@@ -27,16 +28,16 @@ INSERT INTO rental_pricing (
   updated_at
 ) VALUES
 -- Dell XPS 15
-('prod_laptop_dell_xps_15', 89.99, 69.99, 500.00, true, true, NOW(), NOW()),
+('rp_01', 'prod_laptop_dell_xps_15', 89.99, 69.99, 500.00, true, true, NOW(), NOW()),
 
 -- MacBook Pro 14"
-('prod_laptop_macbook_pro_14', 129.99, 99.99, 800.00, true, true, NOW(), NOW()),
+('rp_02', 'prod_laptop_macbook_pro_14', 129.99, 99.99, 800.00, true, true, NOW(), NOW()),
 
 -- Dell 27" Monitor
-('prod_monitor_dell_27', 29.99, 24.99, 150.00, true, true, NOW(), NOW()),
+('rp_03', 'prod_monitor_dell_27', 29.99, 24.99, 150.00, true, true, NOW(), NOW()),
 
 -- Docking Station (alleen Flex)
-('prod_docking_station', 19.99, NULL, 100.00, true, false, NOW(), NOW());
+('rp_04', 'prod_docking_station', 19.99, NULL, 100.00, true, false, NOW(), NOW());
 
 -- ============================================
 -- 2. RENTAL CONTRACTS (5 items)

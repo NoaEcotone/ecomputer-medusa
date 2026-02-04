@@ -53,6 +53,7 @@ export const POST = async (
     notes
   } = body
   
+  // @ts-ignore - MedusaService overload issue
   const quoteRequest = await rentalModuleService.createQuoteRequests({
     company_name,
     contact_person,

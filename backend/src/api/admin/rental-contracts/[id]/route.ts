@@ -52,6 +52,7 @@ export const POST = async (
     notes
   } = body
   
+  // @ts-ignore - MedusaService overload issue
   const contract = await rentalModuleService.updateRentalContracts({
     id,
     status,

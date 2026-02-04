@@ -60,6 +60,7 @@ export const POST = async (
   } = body
   
   // Create contract
+  // @ts-ignore - MedusaService overload issue
   const contract = await rentalModuleService.createRentalContracts({
     contract_number,
     customer_id,

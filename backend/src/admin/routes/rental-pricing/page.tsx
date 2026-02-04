@@ -161,8 +161,7 @@ const RentalPricingPage = () => {
 export const config = defineRouteConfig({
   label: "Verhuurprijzen",
   icon: CurrencyDollar,
-  nested: "/rentals",
-  rank: 1,
+  rank: 4,
 })
 
 export default RentalPricingPage

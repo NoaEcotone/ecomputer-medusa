@@ -190,8 +190,7 @@ const QuoteRequestsPage = () => {
 export const config = defineRouteConfig({
   label: "Offerte Aanvragen",
   icon: DocumentText,
-  nested: "/rentals",
-  rank: 2,
+  rank: 5,
 })
 
 export default QuoteRequestsPage

@@ -22,13 +22,21 @@ export const POST = async (
   const rentalModuleService = req.scope.resolve("rental")
   const { id } = req.params
   
+  const body = req.body as {
+    flex_monthly_price?: number | null
+    year_monthly_price?: number | null
+    deposit_amount?: number | null
+    flex_available?: boolean
+    year_available?: boolean
+  }
+  
   const {
     flex_monthly_price,
     year_monthly_price,
     deposit_amount,
     flex_available,
     year_available
-  } = req.body
+  } = body
   
   const pricing = await rentalModuleService.updateRentalPricings(id, {
     flex_monthly_price,

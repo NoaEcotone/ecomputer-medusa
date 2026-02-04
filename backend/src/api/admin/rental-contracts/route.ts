@@ -27,6 +27,22 @@ export const POST = async (
 ) => {
   const rentalModuleService = req.scope.resolve("rental")
   
+  const body = req.body as {
+    contract_number: string
+    customer_id: string
+    type: string
+    status?: string
+    start_date: string
+    end_date?: string
+    earliest_end_date?: string
+    monthly_amount: number
+    deposit_amount: number
+    deposit_paid?: boolean
+    deposit_refunded?: boolean
+    notes?: string
+    items?: any[]
+  }
+  
   const {
     contract_number,
     customer_id,
@@ -41,7 +57,7 @@ export const POST = async (
     deposit_refunded,
     notes,
     items
-  } = req.body
+  } = body
   
   // Create contract
   const contract = await rentalModuleService.createRentalContracts({

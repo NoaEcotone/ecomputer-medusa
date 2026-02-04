@@ -22,11 +22,17 @@ export const POST = async (
   const rentalModuleService = req.scope.resolve("rental")
   const { id } = req.params
   
+  const body = req.body as {
+    status?: string
+    notes?: string
+    requested_items?: Record<string, any>
+  }
+  
   const {
     status,
     notes,
     requested_items
-  } = req.body
+  } = body
   
   const quoteRequest = await rentalModuleService.updateQuoteRequests(id, {
     status,

@@ -30,6 +30,17 @@ export const POST = async (
   const rentalModuleService = req.scope.resolve("rental")
   const { id } = req.params
   
+  const body = req.body as {
+    status?: string
+    end_date?: string
+    earliest_end_date?: string
+    monthly_amount?: number
+    deposit_amount?: number
+    deposit_paid?: boolean
+    deposit_refunded?: boolean
+    notes?: string
+  }
+  
   const {
     status,
     end_date,
@@ -39,7 +50,7 @@ export const POST = async (
     deposit_paid,
     deposit_refunded,
     notes
-  } = req.body
+  } = body
   
   const contract = await rentalModuleService.updateRentalContracts(id, {
     status,

@@ -29,6 +29,18 @@ export const POST = async (
 ) => {
   const rentalModuleService = req.scope.resolve("rental")
   
+  const body = req.body as {
+    company_name: string
+    contact_person: string
+    email: string
+    phone?: string
+    desired_period_start: string
+    desired_period_end: string
+    requested_items?: Record<string, any>
+    status?: string
+    notes?: string
+  }
+  
   const {
     company_name,
     contact_person,
@@ -39,7 +51,7 @@ export const POST = async (
     requested_items,
     status,
     notes
-  } = req.body
+  } = body
   
   const quoteRequest = await rentalModuleService.createQuoteRequests({
     company_name,

@@ -29,6 +29,15 @@ export const POST = async (
 ) => {
   const rentalModuleService = req.scope.resolve("rental")
   
+  const body = req.body as {
+    product_id: string
+    flex_monthly_price?: number | null
+    year_monthly_price?: number | null
+    deposit_amount?: number | null
+    flex_available?: boolean
+    year_available?: boolean
+  }
+  
   const {
     product_id,
     flex_monthly_price,
@@ -36,7 +45,7 @@ export const POST = async (
     deposit_amount,
     flex_available,
     year_available
-  } = req.body
+  } = body
   
   const pricing = await rentalModuleService.createRentalPricings({
     product_id,

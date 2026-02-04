@@ -71,7 +71,7 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
     return new Intl.NumberFormat('nl-NL', {
       style: 'currency',
       currency: 'EUR',
-    }).format(amount / 100); // Convert cents to euros
+    }).format(amount); // Amount is already in euros
   };
 
   if (loading) {

@@ -20,6 +20,12 @@ export const QuoteRequestActions = ({
       return
     }
 
+    console.log("[DEBUG] Updating quote request:", {
+      quoteRequestId,
+      newStatus,
+      url: `/admin/quote-requests/${quoteRequestId}`
+    })
+
     setIsUpdating(true)
     
     try {

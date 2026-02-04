@@ -14,15 +14,12 @@ export const POST = async (
     customer_email: string
     customer_phone: string
     company_name?: string
+    product_id: string
+    rental_type: string
+    quantity: number
     desired_period_start: string
     desired_period_end: string
     message?: string
-    requested_items: Array<{
-      product_id: string
-      product_title: string
-      rental_type: string
-      quantity: number
-    }>
   }
   
   const {
@@ -30,15 +27,32 @@ export const POST = async (
     customer_email,
     customer_phone,
     company_name,
+    product_id,
+    rental_type,
+    quantity,
     desired_period_start,
     desired_period_end,
-    message,
-    requested_items
+    message
   } = body
+  
+  // Validate required fields
+  if (!customer_name || !customer_email || !customer_phone || !product_id || !rental_type || !desired_period_start || !desired_period_end) {
+    return res.status(400).json({ 
+      error: "Missing required fields",
+      required: ["customer_name", "customer_email", "customer_phone", "product_id", "rental_type", "desired_period_start", "desired_period_end"]
+    })
+  }
+  
+  // Create requested_items array with single item
+  const requested_items = [{
+    product_id,
+    rental_type,
+    quantity: quantity || 1
+  }]
   
   // Create quote request
   const quoteRequest = await rentalModuleService.createQuoteRequests({
-    company_name: company_name || "Particulier", // Use "Particulier" if no company
+    company_name: company_name || "Particulier",
     contact_person: customer_name,
     email: customer_email,
     phone: customer_phone,

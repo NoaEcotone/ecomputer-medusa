@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Calendar, Shield, Plus } from 'lucide-react';
+import { Loader2, Calendar, Shield } from 'lucide-react';
 import { useQuoteCart } from '@/contexts/QuoteCartContext';
 import { toast } from 'sonner';
 
@@ -227,7 +227,7 @@ export default function RentalPricing({ productId, productTitle, productHandle, 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Flex Option - LEFT */}
         {hasFlexPricing && (
-          <div className="bg-white border-2 border-blue-200 rounded-lg p-6">
+          <div className="bg-white border-2 border-blue-200 rounded-lg p-6 flex flex-col">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 mb-2">
@@ -292,17 +292,16 @@ export default function RentalPricing({ productId, productTitle, productHandle, 
 
             <Button
               onClick={() => handleAddToCart('flex')}
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              className="w-full bg-blue-600 hover:bg-blue-700 mt-auto text-sm"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Aan Offerte Toevoegen
+              Toevoegen aan Offerte
             </Button>
           </div>
         )}
 
         {/* Year Option - MIDDLE */}
         {hasYearPricing && (
-          <div className="bg-white border-2 border-purple-200 rounded-lg p-6">
+          <div className="bg-white border-2 border-purple-200 rounded-lg p-6 flex flex-col">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100 mb-2">
@@ -367,16 +366,15 @@ export default function RentalPricing({ productId, productTitle, productHandle, 
 
             <Button
               onClick={() => handleAddToCart('jaar')}
-              className="w-full bg-purple-600 hover:bg-purple-700"
+              className="w-full bg-purple-600 hover:bg-purple-700 mt-auto text-sm"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Aan Offerte Toevoegen
+              Toevoegen aan Offerte
             </Button>
           </div>
         )}
 
         {/* Short-term Option - RIGHT */}
-        <div className="bg-white border-2 border-green-200 rounded-lg p-6">
+        <div className="bg-white border-2 border-green-200 rounded-lg p-6 flex flex-col">
           <div className="flex items-start justify-between mb-4">
             <div>
               <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mb-2">
@@ -440,10 +438,9 @@ export default function RentalPricing({ productId, productTitle, productHandle, 
 
           <Button
             onClick={() => handleAddToCart('korte_termijn')}
-            className="w-full bg-green-600 hover:bg-green-700"
+            className="w-full bg-green-600 hover:bg-green-700 mt-auto text-sm"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Aan Offerte Toevoegen
+            Toevoegen aan Offerte
           </Button>
         </div>
       </div>

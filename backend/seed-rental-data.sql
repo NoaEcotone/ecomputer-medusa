@@ -2,8 +2,12 @@
 -- Rental Module Test Data Seed Script
 -- ============================================
 -- Dit SQL bestand voegt test data toe aan de rental module
+-- Compatible met pgAdmin, DBeaver, en andere SQL clients
 -- 
--- Gebruik: psql -d ecomputer_medusa -f seed-rental-data.sql
+-- Gebruik in pgAdmin:
+-- 1. Open Query Tool
+-- 2. Open dit bestand
+-- 3. Execute (F5)
 -- ============================================
 
 BEGIN;
@@ -99,24 +103,19 @@ INSERT INTO quote_request (company_name, contact_person, email, phone, desired_s
 COMMIT;
 
 -- ============================================
--- SUMMARY
+-- SUMMARY (as SQL comments)
 -- ============================================
--- 7 rental pricings
--- 5 rental contracts
--- 6 contract items
--- 5 quote requests
--- ============================================
+-- Rental data seeding completed successfully!
+-- Summary:
+--   - 7 rental pricings
+--   - 5 rental contracts
+--   - 6 contract items
+--   - 5 quote requests
+-- 
 -- Total: 23 records added
+-- 
+-- You can now view the data in the admin UI:
+--   -> http://localhost:9000/app/rentals
+--   -> http://localhost:9000/app/rental-pricing
+--   -> http://localhost:9000/app/quote-requests
 -- ============================================
-
-\echo '✅ Rental data seeding completed successfully!'
-\echo '📊 Summary:'
-\echo '  - 7 rental pricings'
-\echo '  - 5 rental contracts'
-\echo '  - 6 contract items'
-\echo '  - 5 quote requests'
-\echo ''
-\echo '🎉 You can now view the data in the admin UI!'
-\echo '   → http://localhost:9000/app/rentals'
-\echo '   → http://localhost:9000/app/rental-pricing'
-\echo '   → http://localhost:9000/app/quote-requests'

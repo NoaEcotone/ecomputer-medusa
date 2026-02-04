@@ -23,7 +23,7 @@ export const POST = async (
   const { id } = req.params
   
   const body = req.body as {
-    status?: string
+    status?: "nieuw" | "in_behandeling" | "offerte_verstuurd" | "geaccepteerd" | "afgewezen"
     notes?: string
     requested_items?: Record<string, any>
   }

@@ -37,7 +37,7 @@ export const POST = async (
     desired_period_start: string
     desired_period_end: string
     requested_items?: Record<string, any>
-    status?: string
+    status?: "nieuw" | "in_behandeling" | "offerte_verstuurd" | "geaccepteerd" | "afgewezen"
     notes?: string
   }
   

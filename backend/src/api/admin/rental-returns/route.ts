@@ -31,7 +31,7 @@ export const POST = async (
   
   const body = req.body as {
     contract_id: string
-    return_date: string
+    return_date: string | Date
     condition: string
     damage_description?: string
     deposit_withheld?: number
@@ -49,7 +49,7 @@ export const POST = async (
   
   const rentalReturn = await rentalModuleService.createRentalReturns({
     contract_id,
-    return_date,
+    return_date: typeof return_date === 'string' ? new Date(return_date) : return_date,
     condition,
     damage_description,
     deposit_withheld: deposit_withheld || 0,

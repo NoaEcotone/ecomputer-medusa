@@ -58,7 +58,7 @@ export const ContractEditDrawer = ({
         formData.earliest_end_date !==
         (contract.earliest_end_date || "").split("T")[0]
       )
-        updateData.earliest_end_date = formData.earliest_end_date
+        updateData.earliest_end_date = formData.earliest_end_date || null
       if (formData.monthly_amount !== contract.monthly_amount)
         updateData.monthly_amount = formData.monthly_amount
       if (formData.deposit_amount !== contract.deposit_amount)

@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Calendar, Shield } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2, Calendar, Shield, Plus } from 'lucide-react';
+import { useQuoteCart } from '@/contexts/QuoteCartContext';
+import { toast } from 'sonner';
 
 interface RentalPricingData {
   id: string;
@@ -15,13 +19,30 @@ interface RentalPricingData {
 
 interface RentalPricingProps {
   productId: string;
-  onRequestQuote: (type: 'flex' | 'jaar' | 'korte_termijn') => void;
+  productTitle: string;
+  productHandle: string;
+  productThumbnail?: string;
 }
 
-export default function RentalPricing({ productId, onRequestQuote }: RentalPricingProps) {
+export default function RentalPricing({ productId, productTitle, productHandle, productThumbnail }: RentalPricingProps) {
   const [pricing, setPricing] = useState<RentalPricingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Separate state for each rental type
+  const [flexQuantity, setFlexQuantity] = useState(1);
+  const [flexStartDate, setFlexStartDate] = useState('');
+  const [flexEndDate, setFlexEndDate] = useState('');
+  
+  const [yearQuantity, setYearQuantity] = useState(1);
+  const [yearStartDate, setYearStartDate] = useState('');
+  const [yearEndDate, setYearEndDate] = useState('');
+  
+  const [shortQuantity, setShortQuantity] = useState(1);
+  const [shortStartDate, setShortStartDate] = useState('');
+  const [shortEndDate, setShortEndDate] = useState('');
+
+  const { addItem } = useQuoteCart();
 
   useEffect(() => {
     async function fetchPricing() {
@@ -71,7 +92,95 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
     return new Intl.NumberFormat('nl-NL', {
       style: 'currency',
       currency: 'EUR',
-    }).format(amount); // Amount is already in euros
+    }).format(amount);
+  };
+
+  const validateDates = (type: 'flex' | 'jaar' | 'korte_termijn', startDate: string, endDate: string): string | null => {
+    if (!startDate || !endDate) {
+      return 'Selecteer een start- en einddatum';
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (start < today) {
+      return 'Startdatum kan niet in het verleden liggen';
+    }
+
+    if (end <= start) {
+      return 'Einddatum moet na de startdatum liggen';
+    }
+
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (type === 'flex' && diffDays < 90) {
+      return 'Flex huur vereist minimaal 3 maanden (90 dagen)';
+    }
+
+    if (type === 'jaar' && diffDays < 365) {
+      return 'Jaar huur vereist minimaal 12 maanden (365 dagen)';
+    }
+
+    if (type === 'korte_termijn' && diffDays > 28) {
+      return 'Korte termijn huur kan maximaal 4 weken (28 dagen) zijn';
+    }
+
+    return null;
+  };
+
+  const handleAddToCart = (type: 'flex' | 'jaar' | 'korte_termijn') => {
+    let quantity, startDate, endDate;
+
+    if (type === 'flex') {
+      quantity = flexQuantity;
+      startDate = flexStartDate;
+      endDate = flexEndDate;
+    } else if (type === 'jaar') {
+      quantity = yearQuantity;
+      startDate = yearStartDate;
+      endDate = yearEndDate;
+    } else {
+      quantity = shortQuantity;
+      startDate = shortStartDate;
+      endDate = shortEndDate;
+    }
+
+    // Validate
+    const error = validateDates(type, startDate, endDate);
+    if (error) {
+      toast.error('Ongeldige datum', { description: error });
+      return;
+    }
+
+    if (quantity < 1) {
+      toast.error('Ongeldig aantal', { description: 'Aantal moet minimaal 1 zijn' });
+      return;
+    }
+
+    // Add to cart
+    addItem({
+      productId,
+      productTitle,
+      productHandle,
+      productThumbnail,
+      rentalType: type,
+      quantity,
+      desiredPeriodStart: startDate,
+      desiredPeriodEnd: endDate,
+    });
+
+    const typeLabels = {
+      flex: 'Flex',
+      jaar: 'Jaar',
+      korte_termijn: 'Korte Termijn',
+    };
+
+    toast.success('Toegevoegd aan offerte', {
+      description: `${quantity}x ${productTitle} (${typeLabels[type]})`,
+    });
   };
 
   if (loading) {
@@ -110,7 +219,7 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
       <div>
         <h2 className="text-xl font-semibold mb-2">Verhuurprijzen</h2>
         <p className="text-sm text-gray-600">
-          Kies een huurperiode en vraag een offerte aan
+          Kies een huurperiode, aantal en datums, en voeg toe aan je offerte
         </p>
       </div>
 
@@ -118,7 +227,7 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Flex Option - LEFT */}
         {hasFlexPricing && (
-          <div className="bg-white border-2 border-blue-200 rounded-lg p-6 hover:border-blue-400 transition-colors">
+          <div className="bg-white border-2 border-blue-200 rounded-lg p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 mb-2">
@@ -132,7 +241,7 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
               <Calendar className="w-6 h-6 text-blue-600" />
             </div>
             
-            <ul className="space-y-2 mb-6 text-sm text-gray-600">
+            <ul className="space-y-2 mb-4 text-sm text-gray-600">
               <li className="flex items-start">
                 <span className="mr-2">✓</span>
                 <span>Flexibele huurperiode</span>
@@ -147,18 +256,53 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
               </li>
             </ul>
 
+            <div className="space-y-3 mb-4">
+              <div>
+                <Label htmlFor="flex-quantity" className="text-xs">Aantal</Label>
+                <Input
+                  id="flex-quantity"
+                  type="number"
+                  min="1"
+                  value={flexQuantity}
+                  onChange={(e) => setFlexQuantity(parseInt(e.target.value) || 1)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="flex-start" className="text-xs">Startdatum</Label>
+                <Input
+                  id="flex-start"
+                  type="date"
+                  value={flexStartDate}
+                  onChange={(e) => setFlexStartDate(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="flex-end" className="text-xs">Einddatum</Label>
+                <Input
+                  id="flex-end"
+                  type="date"
+                  value={flexEndDate}
+                  onChange={(e) => setFlexEndDate(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
             <Button
-              onClick={() => onRequestQuote('flex')}
+              onClick={() => handleAddToCart('flex')}
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              Offerte Aanvragen
+              <Plus className="w-4 h-4 mr-2" />
+              Aan Offerte Toevoegen
             </Button>
           </div>
         )}
 
         {/* Year Option - MIDDLE */}
         {hasYearPricing && (
-          <div className="bg-white border-2 border-purple-200 rounded-lg p-6 hover:border-purple-400 transition-colors">
+          <div className="bg-white border-2 border-purple-200 rounded-lg p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100 mb-2">
@@ -172,7 +316,7 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
               <Calendar className="w-6 h-6 text-purple-600" />
             </div>
             
-            <ul className="space-y-2 mb-6 text-sm text-gray-600">
+            <ul className="space-y-2 mb-4 text-sm text-gray-600">
               <li className="flex items-start">
                 <span className="mr-2">✓</span>
                 <span>1 jaar vaste periode</span>
@@ -187,17 +331,52 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
               </li>
             </ul>
 
+            <div className="space-y-3 mb-4">
+              <div>
+                <Label htmlFor="year-quantity" className="text-xs">Aantal</Label>
+                <Input
+                  id="year-quantity"
+                  type="number"
+                  min="1"
+                  value={yearQuantity}
+                  onChange={(e) => setYearQuantity(parseInt(e.target.value) || 1)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="year-start" className="text-xs">Startdatum</Label>
+                <Input
+                  id="year-start"
+                  type="date"
+                  value={yearStartDate}
+                  onChange={(e) => setYearStartDate(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="year-end" className="text-xs">Einddatum</Label>
+                <Input
+                  id="year-end"
+                  type="date"
+                  value={yearEndDate}
+                  onChange={(e) => setYearEndDate(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
             <Button
-              onClick={() => onRequestQuote('jaar')}
+              onClick={() => handleAddToCart('jaar')}
               className="w-full bg-purple-600 hover:bg-purple-700"
             >
-              Offerte Aanvragen
+              <Plus className="w-4 h-4 mr-2" />
+              Aan Offerte Toevoegen
             </Button>
           </div>
         )}
 
         {/* Short-term Option - RIGHT */}
-        <div className="bg-white border-2 border-green-200 rounded-lg p-6 hover:border-green-400 transition-colors">
+        <div className="bg-white border-2 border-green-200 rounded-lg p-6">
           <div className="flex items-start justify-between mb-4">
             <div>
               <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mb-2">
@@ -210,7 +389,7 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
             <Calendar className="w-6 h-6 text-green-600" />
           </div>
           
-          <ul className="space-y-2 mb-6 text-sm text-gray-600">
+          <ul className="space-y-2 mb-4 text-sm text-gray-600">
             <li className="flex items-start">
               <span className="mr-2">✓</span>
               <span>1 dag tot 4 weken</span>
@@ -225,11 +404,46 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
             </li>
           </ul>
 
+          <div className="space-y-3 mb-4">
+            <div>
+              <Label htmlFor="short-quantity" className="text-xs">Aantal</Label>
+              <Input
+                id="short-quantity"
+                type="number"
+                min="1"
+                value={shortQuantity}
+                onChange={(e) => setShortQuantity(parseInt(e.target.value) || 1)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="short-start" className="text-xs">Startdatum</Label>
+              <Input
+                id="short-start"
+                type="date"
+                value={shortStartDate}
+                onChange={(e) => setShortStartDate(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="short-end" className="text-xs">Einddatum</Label>
+              <Input
+                id="short-end"
+                type="date"
+                value={shortEndDate}
+                onChange={(e) => setShortEndDate(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          </div>
+
           <Button
-            onClick={() => onRequestQuote('korte_termijn')}
+            onClick={() => handleAddToCart('korte_termijn')}
             className="w-full bg-green-600 hover:bg-green-700"
           >
-            Offerte Aanvragen
+            <Plus className="w-4 h-4 mr-2" />
+            Aan Offerte Toevoegen
           </Button>
         </div>
       </div>
@@ -251,7 +465,7 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
       {/* Additional Info */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-sm text-blue-900">
-          <strong>Let op:</strong> Dit zijn indicatieprijzen. Na het aanvragen van een offerte 
+          <strong>Let op:</strong> Dit zijn indicatieprijzen. Na het indienen van je offerte 
           nemen wij contact met u op om de details te bespreken en de offerte definitief te maken.
         </p>
       </div>

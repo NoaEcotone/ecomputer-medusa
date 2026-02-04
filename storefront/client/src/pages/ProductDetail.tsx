@@ -6,7 +6,6 @@ import { ProductWithAttributes, formatPrice } from '@/lib/medusa';
 import { Loader2, ArrowLeft, Laptop } from 'lucide-react';
 import { Link } from 'wouter';
 import RentalPricing from '@/components/RentalPricing';
-import QuoteRequestDialog from '@/components/QuoteRequestDialog';
 
 export default function ProductDetail() {
   const [, params] = useRoute('/products/:handle');
@@ -17,8 +16,7 @@ export default function ProductDetail() {
   const [error, setError] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
-  const [selectedRentalType, setSelectedRentalType] = useState<'flex' | 'jaar' | 'korte_termijn'>('flex');
+
 
   useEffect(() => {
     async function fetchProduct() {
@@ -201,13 +199,7 @@ export default function ProductDetail() {
               </div>
 
               {/* Rental Pricing - Replaces old price display */}
-              <RentalPricing
-                productId={product.id}
-                onRequestQuote={(type) => {
-                  setSelectedRentalType(type);
-                  setQuoteDialogOpen(true);
-                }}
-              />
+              <RentalPricing productId={product.id} />
 
               {/* Key Specs */}
               {attrs && (
@@ -315,15 +307,6 @@ export default function ProductDetail() {
       </main>
 
       <Footer />
-      
-      {/* Quote Request Dialog */}
-      <QuoteRequestDialog
-        open={quoteDialogOpen}
-        onOpenChange={setQuoteDialogOpen}
-        productId={product.id}
-        productTitle={product.title}
-        rentalType={selectedRentalType}
-      />
     </div>
   );
 }

@@ -1,11 +1,14 @@
 import { Link } from "wouter";
-import { Laptop, Menu, X, ShoppingBag } from "lucide-react";
+import { Laptop, Menu, X, ShoppingBag, FileText } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { useQuoteCart } from "@/contexts/QuoteCartContext";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { itemCount, toggleCart } = useCart();
+  const { getTotalItems, openCart } = useQuoteCart();
+  const quoteItemCount = getTotalItems();
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
@@ -34,7 +37,22 @@ export default function Header() {
             </Link>
           </nav>
 
-          {/* Cart Button */}
+          {/* Quote Cart Button */}
+          <button
+            onClick={openCart}
+            className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Offerte Aanvraag"
+            title="Offerte Aanvraag"
+          >
+            <FileText className="w-6 h-6" />
+            {quoteItemCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-green-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {quoteItemCount}
+              </span>
+            )}
+          </button>
+
+          {/* Cart Button (kept for compatibility) */}
           <button
             onClick={toggleCart}
             className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"

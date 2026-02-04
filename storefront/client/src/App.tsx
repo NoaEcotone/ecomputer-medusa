@@ -4,7 +4,9 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CartProvider } from "./contexts/CartContext";
+import { QuoteCartProvider } from "./contexts/QuoteCartContext";
 import CartDrawer from "./components/CartDrawer";
+import QuoteCartDrawer from "./components/QuoteCartDrawer";
 import Home from "./pages/Home";
 import Laptops from "./pages/Laptops";
 import ProductDetail from "./pages/ProductDetail";
@@ -41,11 +43,14 @@ function App() {
         // switchable
       >
         <CartProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-            <CartDrawer />
-          </TooltipProvider>
+          <QuoteCartProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+              <CartDrawer />
+              <QuoteCartDrawer />
+            </TooltipProvider>
+          </QuoteCartProvider>
         </CartProvider>
       </ThemeProvider>
     </ErrorBoundary>

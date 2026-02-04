@@ -2,6 +2,7 @@ import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { CurrencyDollar } from "@medusajs/icons"
 import { Container, Heading, Table, Badge } from "@medusajs/ui"
 import { useEffect, useState } from "react"
+import { RentalPricingCreateForm } from "../../components/rental-pricing-create-form"
 
 const RentalPricingPage = () => {
   const [pricings, setPricings] = useState<any[]>([])
@@ -35,15 +36,7 @@ const RentalPricingPage = () => {
     <Container>
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h1">Verhuurprijzen</Heading>
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => {
-            // TODO: Implement add pricing modal
-            alert("Nieuwe pricing toevoegen komt binnenkort")
-          }}
-        >
-          Nieuwe Pricing
-        </button>
+        <RentalPricingCreateForm />
       </div>
 
       <div className="px-6 py-4">

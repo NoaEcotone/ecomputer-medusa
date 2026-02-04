@@ -3,13 +3,16 @@ import { CurrencyDollar } from "@medusajs/icons"
 import { Container, Heading, Table, Badge } from "@medusajs/ui"
 import { useEffect, useState } from "react"
 import { RentalPricingCreateForm } from "../../components/rental-pricing-create-form"
+import { RentalPricingEditDrawer } from "../../components/rental-pricing-edit-drawer"
 
 const RentalPricingPage = () => {
   const [pricings, setPricings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [editingPricing, setEditingPricing] = useState<any>(null)
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
 
-  useEffect(() => {
-    // Fetch rental pricings from API
+  const fetchPricings = () => {
+    setLoading(true)
     fetch("/admin/rental-pricing", {
       credentials: "include",
     })
@@ -22,7 +25,20 @@ const RentalPricingPage = () => {
         console.error("Error fetching rental pricings:", error)
         setLoading(false)
       })
+  }
+
+  useEffect(() => {
+    fetchPricings()
   }, [])
+
+  const handleEdit = (pricing: any) => {
+    setEditingPricing(pricing)
+    setIsEditDrawerOpen(true)
+  }
+
+  const handleEditSuccess = () => {
+    fetchPricings()
+  }
 
   const formatCurrency = (amount: number | null) => {
     if (amount === null) return "-"
@@ -96,10 +112,7 @@ const RentalPricingPage = () => {
                   <Table.Cell>
                     <button
                       className="text-blue-500 hover:text-blue-700 mr-2"
-                      onClick={() => {
-                        // TODO: Implement edit functionality
-                        alert("Bewerken komt binnenkort")
-                      }}
+                      onClick={() => handleEdit(pricing)}
                     >
                       Bewerken
                     </button>
@@ -147,6 +160,16 @@ const RentalPricingPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Drawer */}
+      {editingPricing && (
+        <RentalPricingEditDrawer
+          pricing={editingPricing}
+          isOpen={isEditDrawerOpen}
+          onClose={() => setIsEditDrawerOpen(false)}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </Container>
   )
 }

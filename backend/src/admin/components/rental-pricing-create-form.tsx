@@ -2,6 +2,7 @@ import { z } from "zod"
 import { useForm, FormProvider, Controller } from "react-hook-form"
 import { FocusModal, Heading, Label, Input, Button, Select, Switch, toast } from "@medusajs/ui"
 import { useState } from "react"
+import { ProductSelector } from "./product-selector"
 
 // Validation schema
 const schema = z.object({
@@ -124,30 +125,16 @@ export const RentalPricingCreateForm = () => {
                   </div>
 
                   <div className="grid grid-cols-1 gap-6">
-                    {/* Product ID */}
+                    {/* Product Selector */}
                     <Controller
                       control={form.control}
                       name="product_id"
                       render={({ field, fieldState }) => (
-                        <div className="flex flex-col space-y-2">
-                          <div className="flex items-center gap-x-1">
-                            <Label size="small" weight="plus">
-                              Product ID *
-                            </Label>
-                          </div>
-                          <Input 
-                            {...field} 
-                            placeholder="prod_..." 
-                          />
-                          {fieldState.error && (
-                            <p className="text-ui-fg-error text-xs">
-                              {fieldState.error.message}
-                            </p>
-                          )}
-                          <p className="text-ui-fg-subtle text-xs">
-                            Het Medusa product ID (bijv. prod_01JKHW...)
-                          </p>
-                        </div>
+                        <ProductSelector
+                          value={field.value}
+                          onChange={field.onChange}
+                          error={fieldState.error?.message}
+                        />
                       )}
                     />
 

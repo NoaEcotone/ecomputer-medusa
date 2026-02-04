@@ -52,18 +52,19 @@ export const POST = async (
     notes
   } = body
   
+  // Only include defined values to avoid MikroORM errors
+  const updateData: any = { id }
+  if (status !== undefined) updateData.status = status
+  if (end_date !== undefined) updateData.end_date = end_date
+  if (earliest_end_date !== undefined) updateData.earliest_end_date = earliest_end_date
+  if (monthly_amount !== undefined) updateData.monthly_amount = monthly_amount
+  if (deposit_amount !== undefined) updateData.deposit_amount = deposit_amount
+  if (deposit_paid !== undefined) updateData.deposit_paid = deposit_paid
+  if (deposit_refunded !== undefined) updateData.deposit_refunded = deposit_refunded
+  if (notes !== undefined) updateData.notes = notes
+  
   // @ts-ignore - MedusaService overload issue
-  const contract = await rentalModuleService.updateRentalContracts({
-    id,
-    status,
-    end_date,
-    earliest_end_date,
-    monthly_amount,
-    deposit_amount,
-    deposit_paid,
-    deposit_refunded,
-    notes
-  })
+  const contract = await rentalModuleService.updateRentalContracts(updateData)
   
   res.json({ rental_contract: contract })
 }

@@ -1,13 +1,9 @@
 import { ExecArgs } from "@medusajs/framework/types"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 /**
  * Seed script voor rental module test data
  * 
- * Dit script voegt test data toe aan de rental module:
- * - Rental Pricing voor verschillende producten
- * - Rental Contracts met verschillende statussen
- * - Quote Requests met verschillende statussen
+ * Dit script voegt test data toe aan de rental module via directe SQL queries.
  * 
  * Gebruik: pnpm medusa exec ./src/scripts/seed-rental-data.ts
  */
@@ -16,300 +12,89 @@ export default async function seedRentalData({ container }: ExecArgs) {
   console.log("🌱 Starting rental data seeding...")
 
   try {
-    // Get database connection
-    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    // Get the Postgres manager from container
+    const pgConnection = container.resolve("pg_connection")
     
     console.log("\n📊 Creating rental pricing...")
     
     const pricings = [
-      {
-        product_id: "prod_laptop_dell_xps_15",
-        rental_type: "flex",
-        monthly_price: 89.99,
-        deposit_amount: 500.00,
-        is_available: true,
-      },
-      {
-        product_id: "prod_laptop_dell_xps_15",
-        rental_type: "jaar",
-        monthly_price: 69.99,
-        deposit_amount: 500.00,
-        is_available: true,
-      },
-      {
-        product_id: "prod_laptop_macbook_pro_14",
-        rental_type: "flex",
-        monthly_price: 129.99,
-        deposit_amount: 800.00,
-        is_available: true,
-      },
-      {
-        product_id: "prod_laptop_macbook_pro_14",
-        rental_type: "jaar",
-        monthly_price: 99.99,
-        deposit_amount: 800.00,
-        is_available: true,
-      },
-      {
-        product_id: "prod_monitor_dell_27",
-        rental_type: "flex",
-        monthly_price: 29.99,
-        deposit_amount: 150.00,
-        is_available: true,
-      },
-      {
-        product_id: "prod_monitor_dell_27",
-        rental_type: "jaar",
-        monthly_price: 24.99,
-        deposit_amount: 150.00,
-        is_available: true,
-      },
-      {
-        product_id: "prod_docking_station",
-        rental_type: "flex",
-        monthly_price: 19.99,
-        deposit_amount: 100.00,
-        is_available: true,
-      },
+      ["prod_laptop_dell_xps_15", "flex", 89.99, 500.00, true],
+      ["prod_laptop_dell_xps_15", "jaar", 69.99, 500.00, true],
+      ["prod_laptop_macbook_pro_14", "flex", 129.99, 800.00, true],
+      ["prod_laptop_macbook_pro_14", "jaar", 99.99, 800.00, true],
+      ["prod_monitor_dell_27", "flex", 29.99, 150.00, true],
+      ["prod_monitor_dell_27", "jaar", 24.99, 150.00, true],
+      ["prod_docking_station", "flex", 19.99, 100.00, true],
     ]
 
-    // Insert pricing data directly using query
-    for (const pricing of pricings) {
-      await query.graph({
-        entity: "rental_pricing",
-        fields: ["id"],
-        filters: {},
-      }).then(async () => {
-        // Use raw SQL insert since we don't have the module service
-        const knex = container.resolve("db:connection")
-        await knex("rental_pricing").insert(pricing)
-        console.log(`  ✅ Created pricing for ${pricing.product_id} (${pricing.rental_type})`)
-      }).catch(async () => {
-        const knex = container.resolve("db:connection")
-        await knex("rental_pricing").insert(pricing)
-        console.log(`  ✅ Created pricing for ${pricing.product_id} (${pricing.rental_type})`)
-      })
+    for (const [product_id, rental_type, monthly_price, deposit_amount, is_available] of pricings) {
+      await pgConnection.query(
+        `INSERT INTO rental_pricing (product_id, rental_type, monthly_price, deposit_amount, is_available, created_at, updated_at) 
+         VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
+        [product_id, rental_type, monthly_price, deposit_amount, is_available]
+      )
+      console.log(`  ✅ Created pricing for ${product_id} (${rental_type})`)
     }
 
     console.log("\n📝 Creating rental contracts...")
 
     const contracts = [
-      {
-        customer_id: "cus_01JKHW8XQZM9P2N3R4T5V6W7X8",
-        contract_number: "RC-2026-001",
-        rental_type: "flex",
-        status: "actief",
-        start_date: new Date("2025-12-01"),
-        end_date: new Date("2026-12-01"),
-        earliest_end_date: new Date("2026-03-01"),
-        monthly_amount: 89.99,
-        deposit_amount: 500.00,
-        deposit_status: "betaald",
-        notes: "Eerste contract voor nieuwe klant. Levering op kantoor.",
-      },
-      {
-        customer_id: "cus_02JKHW8XQZM9P2N3R4T5V6W7X9",
-        contract_number: "RC-2026-002",
-        rental_type: "jaar",
-        status: "actief",
-        start_date: new Date("2026-01-15"),
-        end_date: new Date("2027-01-15"),
-        earliest_end_date: new Date("2027-01-15"),
-        monthly_amount: 99.99,
-        deposit_amount: 800.00,
-        deposit_status: "betaald",
-        notes: "MacBook Pro voor designer. Inclusief docking station.",
-      },
-      {
-        customer_id: "cus_03JKHW8XQZM9P2N3R4T5V6W7Y0",
-        contract_number: "RC-2026-003",
-        rental_type: "flex",
-        status: "in_afwachting",
-        start_date: new Date("2026-02-10"),
-        end_date: new Date("2027-02-10"),
-        earliest_end_date: new Date("2026-05-10"),
-        monthly_amount: 29.99,
-        deposit_amount: 150.00,
-        deposit_status: "openstaand",
-        notes: "Wacht op betaling borg voordat levering kan plaatsvinden.",
-      },
-      {
-        customer_id: "cus_04JKHW8XQZM9P2N3R4T5V6W7Y1",
-        contract_number: "RC-2025-089",
-        rental_type: "jaar",
-        status: "beëindigd",
-        start_date: new Date("2025-01-01"),
-        end_date: new Date("2026-01-01"),
-        earliest_end_date: new Date("2026-01-01"),
-        monthly_amount: 69.99,
-        deposit_amount: 500.00,
-        deposit_status: "terugbetaald",
-        notes: "Contract succesvol afgerond. Apparatuur in goede staat geretourneerd.",
-      },
-      {
-        customer_id: "cus_05JKHW8XQZM9P2N3R4T5V6W7Y2",
-        contract_number: "RC-2026-004",
-        rental_type: "flex",
-        status: "eindigt_binnenkort",
-        start_date: new Date("2025-11-01"),
-        end_date: new Date("2026-02-01"),
-        earliest_end_date: new Date("2026-02-01"),
-        monthly_amount: 89.99,
-        deposit_amount: 500.00,
-        deposit_status: "betaald",
-        notes: "Opzegtermijn loopt. Klant wil niet verlengen.",
-      },
+      ["cus_01JKHW8XQZM9P2N3R4T5V6W7X8", "RC-2026-001", "flex", "actief", "2025-12-01", "2026-12-01", "2026-03-01", 89.99, 500.00, "betaald", "Eerste contract voor nieuwe klant. Levering op kantoor."],
+      ["cus_02JKHW8XQZM9P2N3R4T5V6W7X9", "RC-2026-002", "jaar", "actief", "2026-01-15", "2027-01-15", "2027-01-15", 99.99, 800.00, "betaald", "MacBook Pro voor designer. Inclusief docking station."],
+      ["cus_03JKHW8XQZM9P2N3R4T5V6W7Y0", "RC-2026-003", "flex", "in_afwachting", "2026-02-10", "2027-02-10", "2026-05-10", 29.99, 150.00, "openstaand", "Wacht op betaling borg voordat levering kan plaatsvinden."],
+      ["cus_04JKHW8XQZM9P2N3R4T5V6W7Y1", "RC-2025-089", "jaar", "beëindigd", "2025-01-01", "2026-01-01", "2026-01-01", 69.99, 500.00, "terugbetaald", "Contract succesvol afgerond. Apparatuur in goede staat geretourneerd."],
+      ["cus_05JKHW8XQZM9P2N3R4T5V6W7Y2", "RC-2026-004", "flex", "eindigt_binnenkort", "2025-11-01", "2026-02-01", "2026-02-01", 89.99, 500.00, "betaald", "Opzegtermijn loopt. Klant wil niet verlengen."],
     ]
 
-    const knex = container.resolve("db:connection")
-    const createdContracts = []
+    const createdContractIds = []
     
     for (const contract of contracts) {
-      const [id] = await knex("rental_contract").insert(contract).returning("id")
-      createdContracts.push({ id: id.id || id })
-      console.log(`  ✅ Created contract ${contract.contract_number} (${contract.status})`)
+      const result = await pgConnection.query(
+        `INSERT INTO rental_contract (customer_id, contract_number, rental_type, status, start_date, end_date, earliest_end_date, monthly_amount, deposit_amount, deposit_status, notes, created_at, updated_at) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW()) RETURNING id`,
+        contract
+      )
+      createdContractIds.push(result.rows[0].id)
+      console.log(`  ✅ Created contract ${contract[1]} (${contract[3]})`)
     }
 
     console.log("\n📦 Adding items to contracts...")
 
     const contractItems = [
-      // RC-2026-001 items
-      {
-        contract_id: createdContracts[0].id,
-        product_id: "prod_laptop_dell_xps_15",
-        quantity: 1,
-        serial_number: "DXP15-2024-A1234",
-        condition_at_delivery: "nieuw",
-        condition_at_return: null,
-      },
-      // RC-2026-002 items
-      {
-        contract_id: createdContracts[1].id,
-        product_id: "prod_laptop_macbook_pro_14",
-        quantity: 1,
-        serial_number: "MBP14-2024-B5678",
-        condition_at_delivery: "nieuw",
-        condition_at_return: null,
-      },
-      {
-        contract_id: createdContracts[1].id,
-        product_id: "prod_docking_station",
-        quantity: 1,
-        serial_number: "DOCK-2024-C9012",
-        condition_at_delivery: "nieuw",
-        condition_at_return: null,
-      },
-      // RC-2026-003 items
-      {
-        contract_id: createdContracts[2].id,
-        product_id: "prod_monitor_dell_27",
-        quantity: 2,
-        serial_number: "MON27-2024-D3456",
-        condition_at_delivery: "nieuw",
-        condition_at_return: null,
-      },
-      // RC-2025-089 items (beëindigd)
-      {
-        contract_id: createdContracts[3].id,
-        product_id: "prod_laptop_dell_xps_15",
-        quantity: 1,
-        serial_number: "DXP15-2023-E7890",
-        condition_at_delivery: "nieuw",
-        condition_at_return: "goed",
-      },
-      // RC-2026-004 items
-      {
-        contract_id: createdContracts[4].id,
-        product_id: "prod_laptop_dell_xps_15",
-        quantity: 1,
-        serial_number: "DXP15-2024-F1122",
-        condition_at_delivery: "nieuw",
-        condition_at_return: null,
-      },
+      [createdContractIds[0], "prod_laptop_dell_xps_15", 1, "DXP15-2024-A1234", "nieuw", null],
+      [createdContractIds[1], "prod_laptop_macbook_pro_14", 1, "MBP14-2024-B5678", "nieuw", null],
+      [createdContractIds[1], "prod_docking_station", 1, "DOCK-2024-C9012", "nieuw", null],
+      [createdContractIds[2], "prod_monitor_dell_27", 2, "MON27-2024-D3456", "nieuw", null],
+      [createdContractIds[3], "prod_laptop_dell_xps_15", 1, "DXP15-2023-E7890", "nieuw", "goed"],
+      [createdContractIds[4], "prod_laptop_dell_xps_15", 1, "DXP15-2024-F1122", "nieuw", null],
     ]
 
     for (const item of contractItems) {
-      await knex("rental_contract_item").insert(item)
-      console.log(`  ✅ Added item ${item.product_id} to contract`)
+      await pgConnection.query(
+        `INSERT INTO rental_contract_item (contract_id, product_id, quantity, serial_number, condition_at_delivery, condition_at_return, created_at, updated_at) 
+         VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
+        item
+      )
+      console.log(`  ✅ Added item ${item[1]} to contract`)
     }
 
     console.log("\n💬 Creating quote requests...")
 
     const quoteRequests = [
-      {
-        company_name: "Tech Startup BV",
-        contact_person: "Jan Jansen",
-        email: "jan@techstartup.nl",
-        phone: "+31612345678",
-        desired_start_date: new Date("2026-03-01"),
-        desired_end_date: new Date("2026-03-15"),
-        desired_items: JSON.stringify([
-          { product_id: "prod_laptop_dell_xps_15", quantity: 5 },
-          { product_id: "prod_monitor_dell_27", quantity: 5 },
-        ]),
-        status: "nieuw",
-        notes: "Voor tijdelijk project. Levering op kantoor gewenst.",
-      },
-      {
-        company_name: "Event Company Amsterdam",
-        contact_person: "Sarah de Vries",
-        email: "sarah@eventcompany.nl",
-        phone: "+31687654321",
-        desired_start_date: new Date("2026-04-10"),
-        desired_end_date: new Date("2026-04-12"),
-        desired_items: JSON.stringify([
-          { product_id: "prod_laptop_macbook_pro_14", quantity: 10 },
-          { product_id: "prod_docking_station", quantity: 10 },
-        ]),
-        status: "in_behandeling",
-        notes: "Voor conferentie. Moet 1 dag voor event geleverd worden.",
-      },
-      {
-        company_name: "Marketing Bureau Rotterdam",
-        contact_person: "Peter Bakker",
-        email: "peter@marketingbureau.nl",
-        phone: "+31698765432",
-        desired_start_date: new Date("2026-02-15"),
-        desired_end_date: new Date("2026-03-15"),
-        desired_items: JSON.stringify([
-          { product_id: "prod_laptop_macbook_pro_14", quantity: 3 },
-        ]),
-        status: "offerte_verstuurd",
-        notes: "Offerte verstuurd op 2026-02-01. Wacht op reactie.",
-      },
-      {
-        company_name: "Consultancy Firm Utrecht",
-        contact_person: "Lisa Vermeulen",
-        email: "lisa@consultancy.nl",
-        phone: "+31676543210",
-        desired_start_date: new Date("2026-01-20"),
-        desired_end_date: new Date("2026-02-20"),
-        desired_items: JSON.stringify([
-          { product_id: "prod_laptop_dell_xps_15", quantity: 2 },
-          { product_id: "prod_monitor_dell_27", quantity: 2 },
-          { product_id: "prod_docking_station", quantity: 2 },
-        ]),
-        status: "geaccepteerd",
-        notes: "Klant heeft offerte geaccepteerd. Contract wordt opgesteld.",
-      },
-      {
-        company_name: "Design Studio Den Haag",
-        contact_person: "Mark de Jong",
-        email: "mark@designstudio.nl",
-        phone: "+31665432109",
-        desired_start_date: new Date("2026-02-01"),
-        desired_end_date: new Date("2026-02-07"),
-        desired_items: JSON.stringify([
-          { product_id: "prod_laptop_macbook_pro_14", quantity: 1 },
-        ]),
-        status: "afgewezen",
-        notes: "Klant vond prijs te hoog. Geen reactie meer ontvangen.",
-      },
+      ["Tech Startup BV", "Jan Jansen", "jan@techstartup.nl", "+31612345678", "2026-03-01", "2026-03-15", JSON.stringify([{product_id: "prod_laptop_dell_xps_15", quantity: 5}, {product_id: "prod_monitor_dell_27", quantity: 5}]), "nieuw", "Voor tijdelijk project. Levering op kantoor gewenst."],
+      ["Event Company Amsterdam", "Sarah de Vries", "sarah@eventcompany.nl", "+31687654321", "2026-04-10", "2026-04-12", JSON.stringify([{product_id: "prod_laptop_macbook_pro_14", quantity: 10}, {product_id: "prod_docking_station", quantity: 10}]), "in_behandeling", "Voor conferentie. Moet 1 dag voor event geleverd worden."],
+      ["Marketing Bureau Rotterdam", "Peter Bakker", "peter@marketingbureau.nl", "+31698765432", "2026-02-15", "2026-03-15", JSON.stringify([{product_id: "prod_laptop_macbook_pro_14", quantity: 3}]), "offerte_verstuurd", "Offerte verstuurd op 2026-02-01. Wacht op reactie."],
+      ["Consultancy Firm Utrecht", "Lisa Vermeulen", "lisa@consultancy.nl", "+31676543210", "2026-01-20", "2026-02-20", JSON.stringify([{product_id: "prod_laptop_dell_xps_15", quantity: 2}, {product_id: "prod_monitor_dell_27", quantity: 2}, {product_id: "prod_docking_station", quantity: 2}]), "geaccepteerd", "Klant heeft offerte geaccepteerd. Contract wordt opgesteld."],
+      ["Design Studio Den Haag", "Mark de Jong", "mark@designstudio.nl", "+31665432109", "2026-02-01", "2026-02-07", JSON.stringify([{product_id: "prod_laptop_macbook_pro_14", quantity: 1}]), "afgewezen", "Klant vond prijs te hoog. Geen reactie meer ontvangen."],
     ]
 
     for (const request of quoteRequests) {
-      await knex("quote_request").insert(request)
-      console.log(`  ✅ Created quote request for ${request.company_name} (${request.status})`)
+      await pgConnection.query(
+        `INSERT INTO quote_request (company_name, contact_person, email, phone, desired_start_date, desired_end_date, desired_items, status, notes, created_at, updated_at) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())`,
+        request
+      )
+      console.log(`  ✅ Created quote request for ${request[0]} (${request[7]})`)
     }
 
     console.log("\n✅ Rental data seeding completed successfully!")

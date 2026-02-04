@@ -116,7 +116,7 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
 
       {/* Pricing Options */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Flex Option */}
+        {/* Flex Option - LEFT */}
         {hasFlexPricing && (
           <div className="bg-white border-2 border-blue-200 rounded-lg p-6 hover:border-blue-400 transition-colors">
             <div className="flex items-start justify-between mb-4">
@@ -156,44 +156,7 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
           </div>
         )}
 
-        {/* Short-term Option */}
-        <div className="bg-white border-2 border-green-200 rounded-lg p-6 hover:border-green-400 transition-colors">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mb-2">
-                KORTE TERMIJN
-              </Badge>
-              <h3 className="text-2xl font-bold">
-                Op aanvraag
-              </h3>
-            </div>
-            <Calendar className="w-6 h-6 text-green-600" />
-          </div>
-          
-          <ul className="space-y-2 mb-6 text-sm text-gray-600">
-            <li className="flex items-start">
-              <span className="mr-2">✓</span>
-              <span>1 dag tot 4 weken</span>
-            </li>
-            <li className="flex items-start">
-              <span className="mr-2">✓</span>
-              <span>Handmatige offerte</span>
-            </li>
-            <li className="flex items-start">
-              <span className="mr-2">✓</span>
-              <span>Snelle beschikbaarheid</span>
-            </li>
-          </ul>
-
-          <Button
-            onClick={() => onRequestQuote('korte_termijn')}
-            className="w-full bg-green-600 hover:bg-green-700"
-          >
-            Offerte Aanvragen
-          </Button>
-        </div>
-
-        {/* Year Option */}
+        {/* Year Option - MIDDLE */}
         {hasYearPricing && (
           <div className="bg-white border-2 border-purple-200 rounded-lg p-6 hover:border-purple-400 transition-colors">
             <div className="flex items-start justify-between mb-4">
@@ -232,6 +195,43 @@ export default function RentalPricing({ productId, onRequestQuote }: RentalPrici
             </Button>
           </div>
         )}
+
+        {/* Short-term Option - RIGHT */}
+        <div className="bg-white border-2 border-green-200 rounded-lg p-6 hover:border-green-400 transition-colors">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <Badge className="bg-green-100 text-green-800 hover:bg-green-100 mb-2">
+                KORTE TERMIJN
+              </Badge>
+              <h3 className="text-2xl font-bold">
+                Op aanvraag
+              </h3>
+            </div>
+            <Calendar className="w-6 h-6 text-green-600" />
+          </div>
+          
+          <ul className="space-y-2 mb-6 text-sm text-gray-600">
+            <li className="flex items-start">
+              <span className="mr-2">✓</span>
+              <span>1 dag tot 4 weken</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2">✓</span>
+              <span>Handmatige offerte</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2">✓</span>
+              <span>Snelle beschikbaarheid</span>
+            </li>
+          </ul>
+
+          <Button
+            onClick={() => onRequestQuote('korte_termijn')}
+            className="w-full bg-green-600 hover:bg-green-700"
+          >
+            Offerte Aanvragen
+          </Button>
+        </div>
       </div>
 
       {/* Deposit Info */}

@@ -8,6 +8,8 @@ const QuoteRequestsPage = () => {
   const [quoteRequests, setQuoteRequests] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>("all")
+  const [sortField, setSortField] = useState<string | null>(null)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
   const fetchQuoteRequests = () => {
     setLoading(true)
@@ -62,6 +64,61 @@ const QuoteRequestsPage = () => {
     return new Date(dateString).toLocaleDateString("nl-NL")
   }
 
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // Toggle direction
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      // New field, default to ascending
+      setSortField(field)
+      setSortDirection('asc')
+    }
+  }
+
+  const getSortedQuoteRequests = () => {
+    if (!sortField) return quoteRequests
+
+    return [...quoteRequests].sort((a, b) => {
+      let aValue, bValue
+
+      switch (sortField) {
+        case 'company_name':
+          aValue = a.company_name?.toLowerCase() || ''
+          bValue = b.company_name?.toLowerCase() || ''
+          break
+        case 'contact_person':
+          aValue = a.contact_person?.toLowerCase() || ''
+          bValue = b.contact_person?.toLowerCase() || ''
+          break
+        case 'duration':
+          aValue = calculateDurationInDays(a.desired_period_start, a.desired_period_end)
+          bValue = calculateDurationInDays(b.desired_period_start, b.desired_period_end)
+          break
+        case 'status':
+          aValue = a.status || ''
+          bValue = b.status || ''
+          break
+        case 'created_at':
+          aValue = new Date(a.created_at).getTime()
+          bValue = new Date(b.created_at).getTime()
+          break
+        default:
+          return 0
+      }
+
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
+      return 0
+    })
+  }
+
+  const calculateDurationInDays = (start: string, end: string) => {
+    const startDate = new Date(start)
+    const endDate = new Date(end)
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime())
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  }
+
   const calculateDuration = (start: string, end: string) => {
     if (!start || !end) return "-"
     const startDate = new Date(start)
@@ -113,18 +170,43 @@ const QuoteRequestsPage = () => {
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.HeaderCell>Bedrijf</Table.HeaderCell>
-                <Table.HeaderCell>Contactpersoon</Table.HeaderCell>
-                <Table.HeaderCell>E-mail</Table.HeaderCell>
-                <Table.HeaderCell>Periode</Table.HeaderCell>
-                <Table.HeaderCell>Duur</Table.HeaderCell>
-                <Table.HeaderCell>Status</Table.HeaderCell>
-                <Table.HeaderCell>Aangemaakt</Table.HeaderCell>
+                <Table.HeaderCell 
+                  className="cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('company_name')}
+                >
+                  Bedrijf {sortField === 'company_name' && (sortDirection === 'asc' ? '↑' : '↓')}
+                </Table.HeaderCell>
+                <Table.HeaderCell 
+                  className="cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('contact_person')}
+                >
+                  Contactpersoon {sortField === 'contact_person' && (sortDirection === 'asc' ? '↑' : '↓')}
+                </Table.HeaderCell>
+                <Table.HeaderCell>Email</Table.HeaderCell>
+                <Table.HeaderCell>Gewenste Periode</Table.HeaderCell>
+                <Table.HeaderCell 
+                  className="cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('duration')}
+                >
+                  Duur {sortField === 'duration' && (sortDirection === 'asc' ? '↑' : '↓')}
+                </Table.HeaderCell>
+                <Table.HeaderCell 
+                  className="cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('status')}
+                >
+                  Status {sortField === 'status' && (sortDirection === 'asc' ? '↑' : '↓')}
+                </Table.HeaderCell>
+                <Table.HeaderCell 
+                  className="cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('created_at')}
+                >
+                  Aangemaakt {sortField === 'created_at' && (sortDirection === 'asc' ? '↑' : '↓')}
+                </Table.HeaderCell>
                 <Table.HeaderCell>Acties</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {quoteRequests.map((request) => (
+              {getSortedQuoteRequests().map((request) => (
                 <Table.Row
                   key={request.id}
                   className="cursor-pointer hover:bg-gray-50"

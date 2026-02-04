@@ -15,6 +15,38 @@ export const QuoteRequestActions = ({
 }: QuoteRequestActionsProps) => {
   const [isUpdating, setIsUpdating] = useState(false)
 
+  const deleteQuoteRequest = async () => {
+    if (!confirm("Weet je zeker dat je deze offerte-aanvraag wilt verwijderen? Dit kan niet ongedaan worden gemaakt.")) {
+      return
+    }
+
+    setIsUpdating(true)
+    
+    try {
+      const response = await fetch(`/admin/quote-requests/${quoteRequestId}`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to delete quote request")
+      }
+
+      toast.success("Offerte-aanvraag verwijderd", {
+        description: "De offerte-aanvraag is succesvol verwijderd",
+      })
+
+      onSuccess()
+    } catch (error) {
+      console.error("Error deleting quote request:", error)
+      toast.error("Fout bij verwijderen", {
+        description: "Er is een fout opgetreden bij het verwijderen van de offerte-aanvraag",
+      })
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
   const updateStatus = async (newStatus: string, confirmMessage?: string) => {
     if (confirmMessage && !confirm(confirmMessage)) {
       return
@@ -186,6 +218,13 @@ export const QuoteRequestActions = ({
               </DropdownMenu.Item>
             </>
           )}
+
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item
+            onClick={deleteQuoteRequest}
+          >
+            <span className="text-red-600">Verwijderen</span>
+          </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu>
     </div>

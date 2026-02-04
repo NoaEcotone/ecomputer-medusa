@@ -1,4 +1,5 @@
-import { MedusaContainer } from "@medusajs/framework/types"
+import { ExecArgs } from "@medusajs/framework/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 /**
  * Seed script voor rental module test data
@@ -8,16 +9,16 @@ import { MedusaContainer } from "@medusajs/framework/types"
  * - Rental Contracts met verschillende statussen
  * - Quote Requests met verschillende statussen
  * 
- * Gebruik: node --loader ts-node/esm src/scripts/seed-rental-data.ts
+ * Gebruik: pnpm medusa exec ./src/scripts/seed-rental-data.ts
  */
 
-export default async function seedRentalData(container: MedusaContainer) {
-  const rentalModuleService = container.resolve("rentalModuleService")
-
+export default async function seedRentalData({ container }: ExecArgs) {
   console.log("🌱 Starting rental data seeding...")
 
   try {
-    // 1. Seed Rental Pricing
+    // Get database connection
+    const query = container.resolve(ContainerRegistrationKeys.QUERY)
+    
     console.log("\n📊 Creating rental pricing...")
     
     const pricings = [
@@ -72,12 +73,24 @@ export default async function seedRentalData(container: MedusaContainer) {
       },
     ]
 
+    // Insert pricing data directly using query
     for (const pricing of pricings) {
-      await rentalModuleService.createRentalPricing(pricing)
-      console.log(`  ✅ Created pricing for ${pricing.product_id} (${pricing.rental_type})`)
+      await query.graph({
+        entity: "rental_pricing",
+        fields: ["id"],
+        filters: {},
+      }).then(async () => {
+        // Use raw SQL insert since we don't have the module service
+        const knex = container.resolve("db:connection")
+        await knex("rental_pricing").insert(pricing)
+        console.log(`  ✅ Created pricing for ${pricing.product_id} (${pricing.rental_type})`)
+      }).catch(async () => {
+        const knex = container.resolve("db:connection")
+        await knex("rental_pricing").insert(pricing)
+        console.log(`  ✅ Created pricing for ${pricing.product_id} (${pricing.rental_type})`)
+      })
     }
 
-    // 2. Seed Rental Contracts
     console.log("\n📝 Creating rental contracts...")
 
     const contracts = [
@@ -148,14 +161,15 @@ export default async function seedRentalData(container: MedusaContainer) {
       },
     ]
 
+    const knex = container.resolve("db:connection")
     const createdContracts = []
+    
     for (const contract of contracts) {
-      const created = await rentalModuleService.createRentalContract(contract)
-      createdContracts.push(created)
+      const [id] = await knex("rental_contract").insert(contract).returning("id")
+      createdContracts.push({ id: id.id || id })
       console.log(`  ✅ Created contract ${contract.contract_number} (${contract.status})`)
     }
 
-    // 3. Add Contract Items
     console.log("\n📦 Adding items to contracts...")
 
     const contractItems = [
@@ -215,11 +229,10 @@ export default async function seedRentalData(container: MedusaContainer) {
     ]
 
     for (const item of contractItems) {
-      await rentalModuleService.createRentalContractItem(item)
+      await knex("rental_contract_item").insert(item)
       console.log(`  ✅ Added item ${item.product_id} to contract`)
     }
 
-    // 4. Seed Quote Requests
     console.log("\n💬 Creating quote requests...")
 
     const quoteRequests = [
@@ -295,7 +308,7 @@ export default async function seedRentalData(container: MedusaContainer) {
     ]
 
     for (const request of quoteRequests) {
-      await rentalModuleService.createQuoteRequest(request)
+      await knex("quote_request").insert(request)
       console.log(`  ✅ Created quote request for ${request.company_name} (${request.status})`)
     }
 
@@ -306,6 +319,9 @@ export default async function seedRentalData(container: MedusaContainer) {
     console.log(`  - ${contractItems.length} contract items`)
     console.log(`  - ${quoteRequests.length} quote requests`)
     console.log("\n🎉 You can now view the data in the admin UI!")
+    console.log("   → http://localhost:9000/app/rentals")
+    console.log("   → http://localhost:9000/app/rental-pricing")
+    console.log("   → http://localhost:9000/app/quote-requests")
 
   } catch (error) {
     console.error("❌ Error seeding rental data:", error)

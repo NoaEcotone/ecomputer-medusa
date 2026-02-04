@@ -1,17 +1,20 @@
-import { Container, Heading, Badge, Table } from "@medusajs/ui"
+import { Container, Heading, Badge, Table, Button } from "@medusajs/ui"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+import { ContractEditDrawer } from "../../../components/contract-edit-drawer"
+import { ContractStatusActions } from "../../../components/contract-status-actions"
 
 const RentalDetailPage = () => {
   const { id } = useParams()
   const [contract, setContract] = useState<any>(null)
   const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false)
 
-  useEffect(() => {
+  const fetchContract = () => {
     if (!id) return
 
-    // Fetch rental contract details
+    setLoading(true)
     fetch(`/admin/rental-contracts/${id}`, {
       credentials: "include",
     })
@@ -25,6 +28,10 @@ const RentalDetailPage = () => {
         console.error("Error fetching rental contract:", error)
         setLoading(false)
       })
+  }
+
+  useEffect(() => {
+    fetchContract()
   }, [id])
 
   const getStatusBadge = (status: string) => {
@@ -89,11 +96,15 @@ const RentalDetailPage = () => {
             Aangemaakt op {formatDate(contract.created_at)}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           {getStatusBadge(contract.status)}
           <Badge color={contract.type === "flex" ? "blue" : contract.type === "jaar" ? "purple" : "orange"} size="large">
             {contract.type.toUpperCase()}
           </Badge>
+          <ContractStatusActions
+            contract={contract}
+            onUpdate={fetchContract}
+          />
         </div>
       </div>
 
@@ -190,34 +201,39 @@ const RentalDetailPage = () => {
 
         {/* Acties */}
         <div className="flex gap-2 pt-4 border-t">
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              // TODO: Implement edit functionality
-              alert("Bewerken functionaliteit komt binnenkort")
-            }}
+          <Button
+            onClick={() => setEditDrawerOpen(true)}
           >
             Bewerken
-          </button>
-          <button
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => {
-              // TODO: Implement return registration
               window.location.href = `/app/rentals/${id}/return`
             }}
           >
             Retour Registreren
-          </button>
-          <button
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => {
               window.location.href = "/app/rentals"
             }}
           >
             Terug naar Overzicht
-          </button>
+          </Button>
         </div>
       </div>
+
+      {/* Edit Drawer */}
+      {contract && (
+        <ContractEditDrawer
+          contract={contract}
+          open={editDrawerOpen}
+          onClose={() => setEditDrawerOpen(false)}
+          onSuccess={fetchContract}
+        />
+      )}
     </Container>
   )
 }

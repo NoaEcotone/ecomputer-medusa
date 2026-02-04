@@ -1,14 +1,18 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { DocumentText } from "@medusajs/icons"
-import { Container, Heading, Table, Badge } from "@medusajs/ui"
+import { Container, Heading, Table, Badge, Button } from "@medusajs/ui"
 import { useEffect, useState } from "react"
+import { ContractEditDrawer } from "../../components/contract-edit-drawer"
+import { ContractStatusActions } from "../../components/contract-status-actions"
 
 const RentalsPage = () => {
   const [contracts, setContracts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false)
+  const [selectedContract, setSelectedContract] = useState<any>(null)
 
-  useEffect(() => {
-    // Fetch rental contracts from API
+  const fetchContracts = () => {
+    setLoading(true)
     fetch("/admin/rental-contracts", {
       credentials: "include",
     })
@@ -21,7 +25,17 @@ const RentalsPage = () => {
         console.error("Error fetching rental contracts:", error)
         setLoading(false)
       })
+  }
+
+  useEffect(() => {
+    fetchContracts()
   }, [])
+
+  const handleEdit = (contract: any, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSelectedContract(contract)
+    setEditDrawerOpen(true)
+  }
 
   const getStatusBadge = (status: string) => {
     const statusColors: Record<string, "green" | "yellow" | "red" | "grey"> = {
@@ -124,21 +138,35 @@ const RentalsPage = () => {
                     )}
                   </Table.Cell>
                   <Table.Cell>
-                    <button
-                      className="text-blue-500 hover:text-blue-700"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        window.location.href = `/app/rentals/${contract.id}`
-                      }}
-                    >
-                      Details
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="small"
+                        variant="secondary"
+                        onClick={(e) => handleEdit(contract, e)}
+                      >
+                        Bewerken
+                      </Button>
+                      <ContractStatusActions
+                        contract={contract}
+                        onUpdate={fetchContracts}
+                      />
+                    </div>
                   </Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>
           </Table>
         </div>
+      )}
+
+      {/* Edit Drawer */}
+      {selectedContract && (
+        <ContractEditDrawer
+          contract={selectedContract}
+          open={editDrawerOpen}
+          onClose={() => setEditDrawerOpen(false)}
+          onSuccess={fetchContracts}
+        />
       )}
     </Container>
   )

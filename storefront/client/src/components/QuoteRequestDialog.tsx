@@ -36,6 +36,8 @@ export default function QuoteRequestDialog({
     customer_email: '',
     customer_phone: '',
     company_name: '',
+    desired_period_start: '',
+    desired_period_end: '',
     message: '',
   });
 
@@ -83,6 +85,8 @@ export default function QuoteRequestDialog({
           customer_email: '',
           customer_phone: '',
           company_name: '',
+          desired_period_start: '',
+          desired_period_end: '',
           message: '',
         });
         setSuccess(false);
@@ -185,6 +189,36 @@ export default function QuoteRequestDialog({
                   onChange={(e) => updateFormData('company_name', e.target.value)}
                   placeholder="Uw bedrijfsnaam"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="desired_period_start">
+                    Gewenste startdatum <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="desired_period_start"
+                    type="date"
+                    value={formData.desired_period_start}
+                    onChange={(e) => updateFormData('desired_period_start', e.target.value)}
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="desired_period_end">
+                    Gewenste einddatum <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="desired_period_end"
+                    type="date"
+                    value={formData.desired_period_end}
+                    onChange={(e) => updateFormData('desired_period_end', e.target.value)}
+                    required
+                    min={formData.desired_period_start || new Date().toISOString().split('T')[0]}
+                  />
+                </div>
               </div>
 
               <div>

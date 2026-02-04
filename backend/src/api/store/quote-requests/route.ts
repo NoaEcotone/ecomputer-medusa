@@ -14,6 +14,8 @@ export const POST = async (
     customer_email: string
     customer_phone: string
     company_name?: string
+    desired_period_start: string
+    desired_period_end: string
     message?: string
     requested_items: Array<{
       product_id: string
@@ -28,18 +30,11 @@ export const POST = async (
     customer_email,
     customer_phone,
     company_name,
+    desired_period_start,
+    desired_period_end,
     message,
     requested_items
   } = body
-  
-  // Map storefront fields to model fields
-  // Model expects: company_name, contact_person, email, phone, desired_period_start/end
-  // Storefront sends: customer_name, customer_email, customer_phone, company_name (optional)
-  
-  // For storefront quotes, we use placeholder dates (to be discussed with customer)
-  const now = new Date()
-  const futureDate = new Date()
-  futureDate.setMonth(futureDate.getMonth() + 1) // Default 1 month from now
   
   // Create quote request
   const quoteRequest = await rentalModuleService.createQuoteRequests({
@@ -47,8 +42,8 @@ export const POST = async (
     contact_person: customer_name,
     email: customer_email,
     phone: customer_phone,
-    desired_period_start: now,
-    desired_period_end: futureDate,
+    desired_period_start: new Date(desired_period_start),
+    desired_period_end: new Date(desired_period_end),
     requested_items: JSON.stringify(requested_items),
     notes: message || null,
     status: "nieuw"

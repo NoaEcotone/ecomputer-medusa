@@ -19,10 +19,10 @@ BEGIN;
 INSERT INTO rental_pricing (
   product_id, 
   flex_monthly_price, 
-  jaar_monthly_price, 
+  year_monthly_price, 
   deposit_amount, 
   flex_available, 
-  jaar_available,
+  year_available,
   created_at, 
   updated_at
 ) VALUES

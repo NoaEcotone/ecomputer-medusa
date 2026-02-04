@@ -34,12 +34,13 @@ export const POST = async (
     requested_items
   } = body
   
-  const quoteRequest = await rentalModuleService.updateQuoteRequests({
-    id,
-    status,
-    notes,
-    requested_items
-  })
+  // Only include defined values to avoid MikroORM errors
+  const updateData: any = { id }
+  if (status !== undefined) updateData.status = status
+  if (notes !== undefined) updateData.notes = notes
+  if (requested_items !== undefined) updateData.requested_items = requested_items
+  
+  const quoteRequest = await rentalModuleService.updateQuoteRequests(updateData)
   
   res.json({ quote_request: quoteRequest })
 }

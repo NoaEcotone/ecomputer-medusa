@@ -45,6 +45,7 @@ export default function QuoteCartDrawer() {
 
     try {
       const MEDUSA_BACKEND_URL = import.meta.env.VITE_MEDUSA_BACKEND_URL || 'http://localhost:9000';
+      const MEDUSA_PUBLISHABLE_KEY = import.meta.env.VITE_MEDUSA_PUBLISHABLE_KEY || '';
 
       // Submit each item as a separate quote request
       const promises = items.map((item) =>
@@ -52,6 +53,7 @@ export default function QuoteCartDrawer() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-publishable-api-key': MEDUSA_PUBLISHABLE_KEY,
           },
           credentials: 'include',
           body: JSON.stringify({

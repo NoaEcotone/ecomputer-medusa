@@ -1,5 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { DocumentText } from "@medusajs/icons"
+import { DocumentSeries } from "@medusajs/icons"
 import { Container, Heading, Table, Badge } from "@medusajs/ui"
 import { useEffect, useState } from "react"
 
@@ -189,7 +189,7 @@ const QuoteRequestsPage = () => {
 
 export const config = defineRouteConfig({
   label: "Offerte Aanvragen",
-  icon: DocumentText,
+  icon: DocumentSeries,
   rank: 5,
 })
 

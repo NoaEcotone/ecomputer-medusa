@@ -1,5 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { ClipboardDocumentList } from "@medusajs/icons"
+import { DocumentText } from "@medusajs/icons"
 import { Container, Heading, Table, Badge } from "@medusajs/ui"
 import { useEffect, useState } from "react"
 
@@ -146,7 +146,7 @@ const RentalsPage = () => {
 
 export const config = defineRouteConfig({
   label: "Verhuur",
-  icon: ClipboardDocumentList,
+  icon: DocumentText,
   rank: 3,
 })
 

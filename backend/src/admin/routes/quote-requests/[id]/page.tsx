@@ -1,6 +1,7 @@
 import { Container, Heading, Badge } from "@medusajs/ui"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+import RequestedItemsDisplay from "../../../components/requested-items-display"
 
 const QuoteRequestDetailPage = () => {
   const { id } = useParams()
@@ -175,11 +176,7 @@ const QuoteRequestDetailPage = () => {
         {/* Gewenste Items */}
         <div>
           <Heading level="h2" className="mb-4">Gewenste Items</Heading>
-          <div className="bg-gray-50 p-4 rounded">
-            <pre className="whitespace-pre-wrap font-mono text-sm">
-              {JSON.stringify(quoteRequest.requested_items, null, 2)}
-            </pre>
-          </div>
+          <RequestedItemsDisplay requestedItemsJson={quoteRequest.requested_items} />
         </div>
 
         {/* Notities */}

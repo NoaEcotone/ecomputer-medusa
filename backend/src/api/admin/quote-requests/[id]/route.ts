@@ -34,7 +34,8 @@ export const POST = async (
     requested_items
   } = body
   
-  const quoteRequest = await rentalModuleService.updateQuoteRequests(id, {
+  const quoteRequest = await rentalModuleService.updateQuoteRequests({
+    id,
     status,
     notes,
     requested_items

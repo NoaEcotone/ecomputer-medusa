@@ -52,7 +52,8 @@ export const POST = async (
     notes
   } = body
   
-  const contract = await rentalModuleService.updateRentalContracts(id, {
+  const contract = await rentalModuleService.updateRentalContracts({
+    id,
     status,
     end_date,
     earliest_end_date,

@@ -38,7 +38,8 @@ export const POST = async (
     year_available
   } = body
   
-  const pricing = await rentalModuleService.updateRentalPricings(id, {
+  const pricing = await rentalModuleService.updateRentalPricings({
+    id,
     flex_monthly_price,
     year_monthly_price,
     deposit_amount,

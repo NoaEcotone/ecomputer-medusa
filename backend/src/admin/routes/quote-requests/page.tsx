@@ -2,14 +2,15 @@ import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { DocumentSeries } from "@medusajs/icons"
 import { Container, Heading, Table, Badge } from "@medusajs/ui"
 import { useEffect, useState } from "react"
+import { QuoteRequestActions } from "../../components/quote-request-actions"
 
 const QuoteRequestsPage = () => {
   const [quoteRequests, setQuoteRequests] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>("all")
 
-  useEffect(() => {
-    // Fetch quote requests from API
+  const fetchQuoteRequests = () => {
+    setLoading(true)
     const url = filter === "all" 
       ? "/admin/quote-requests"
       : `/admin/quote-requests?status=${filter}`
@@ -26,6 +27,10 @@ const QuoteRequestsPage = () => {
         console.error("Error fetching quote requests:", error)
         setLoading(false)
       })
+  }
+
+  useEffect(() => {
+    fetchQuoteRequests()
   }, [filter])
 
   const getStatusBadge = (status: string) => {
@@ -139,15 +144,11 @@ const QuoteRequestsPage = () => {
                   <Table.Cell>{getStatusBadge(request.status)}</Table.Cell>
                   <Table.Cell>{formatDate(request.created_at)}</Table.Cell>
                   <Table.Cell>
-                    <button
-                      className="text-blue-500 hover:text-blue-700"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        window.location.href = `/app/quote-requests/${request.id}`
-                      }}
-                    >
-                      Details
-                    </button>
+                    <QuoteRequestActions
+                      quoteRequestId={request.id}
+                      currentStatus={request.status}
+                      onSuccess={fetchQuoteRequests}
+                    />
                   </Table.Cell>
                 </Table.Row>
               ))}
